@@ -1,13 +1,13 @@
-# r3f-vite-starter
-A boilerplate to build R3F projects
+# Smash Siege game
 
-```
-yarn
-yarn dev
-```
+An Angry-bird like game made in React-three-fiber.
 
+## Dev
 
-![image](https://user-images.githubusercontent.com/6551176/221732091-23ee52cb-4150-42fa-b998-43628d7a6b0d.png)
+- run `yarn` on pull.
 
+- run `yarn dev` to launch locally
 
-Slingshot by Jarlan Perez [CC-BY] via Poly Pizza
+## GLTF
+
+When adding new GLTF items, run `npx gltfjsx [file path] -t`
