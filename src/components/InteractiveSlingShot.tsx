@@ -1,17 +1,18 @@
 import { Cylinder, Line } from '@react-three/drei';
 import { CylinderCollider, RigidBody, useRapier } from '@react-three/rapier';
-import { Slingshot } from './3d/Slingshot';
+import { Slingshot, slingShotCenterPositionVector } from './3d/Slingshot';
 import { ElasticBand } from './3d/ElasticBand';
 import { useCallback, useEffect, useRef, useState, WheelEvent } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Euler, Group, Quaternion, Vector2, Vector3 } from 'three';
 import { AmmoController } from './ammo';
-import { currentAmmoPosition, isAmmoReleased, markAmmoAsReleased, moveCurrentAmmo, useCurrentLevelState, useSlingShotStore } from '../store';
+import { currentAmmoPosition, isAmmoReleased, markAmmoAsReleased, MenuStatus, moveCurrentAmmo, useCurrentLevelState, useGameStore, useSlingShotStore } from '../store';
 import { useArrowKeys } from './hooks/use-controls';
 import { Gear } from './3d/Gear';
 import { onReloadLevel, onSlingshotLoadingObservable, onSlingshotReleaseObservable } from '../observables';
 import { useEditorStore } from './ui/levelBuilder/Editor.store';
 import { useSoundContext } from '../libs/sounds/soundContext';
+import { SlingShotPlatform } from './3d/SlingShotPlatform';
 
 const originAmmo = [0, 3.2, 0];
 const elasticConstant = 12;
@@ -37,7 +38,7 @@ export const InteractiveSlingShot = () => {
   const editorZoom = useRef<number>(0);
   const catapult = useRef<Group>(null);
 
-  const centerSlingShotPosition = useRef(new Vector3(-1.8, 3.2, 0)!.lerp(new Vector3(1.5, 3.2, 0), 0.5));
+  const centerSlingShotPosition = useRef(slingShotCenterPositionVector);
 
   const pointerDown = useRef<Vector2 | null>(null);
   const pointerDragged = useRef<Vector2 | null>(null);
@@ -79,10 +80,10 @@ export const InteractiveSlingShot = () => {
     }
     markAmmoAsReleased(currentAmmoIndex);
     onSlingshotReleaseObservable.notifyObservers();
-    currentAmmoRef?.setBodyType(0, true);
+    currentAmmoRef.setBodyType(0, true);
     const direction = computeBulletDirection();
     const scaled = direction.multiplyScalar(elasticForce(computeDistance()));
-    currentAmmoRef?.applyImpulse(scaled, true);
+    currentAmmoRef.applyImpulse(scaled, true);
 
     playSwooshSound();
     setReleasing(false);
@@ -119,10 +120,6 @@ export const InteractiveSlingShot = () => {
         const zPos = position.z + Math.sin(editorCameraStep.current) * (5 * (1 + zoom));
 
         editorCameraPosition.current.set(xPos, editorCameraPosition.current.y, zPos);
-        // editorCameraPosition.current.copy(position.clone());
-        //apply quaternion
-        // camera.quaternion.copy(editorCameraQuaternion.current);
-
         camera.position.lerp(editorCameraPosition.current, 0.1);
         camera.lookAt(editorCameraTarget.current);
         return;
@@ -131,8 +128,10 @@ export const InteractiveSlingShot = () => {
 
     if (arrowKeys.right) {
       container.current!.rotation.y = clamped(container.current!.rotation.y - 0.01, -1.2, container.current!.rotation.y);
+      setPlatformRotation(new Euler(0, container.current!.rotation.y, 0));
     } else if (arrowKeys.left) {
       container.current!.rotation.y = clamped(container.current!.rotation.y + 0.01, container.current!.rotation.y, 1.2);
+      setPlatformRotation(new Euler(0, container.current!.rotation.y, 0));
     }
 
     // update position and rotation
@@ -242,6 +241,7 @@ export const InteractiveSlingShot = () => {
     };
 
     const onMouseWheel = (event: WheelEvent) => {
+      if (useGameStore.getState().menuState !== MenuStatus.LEVEL_BUILDER) return;
       if (event.deltaY > 0) {
         if (editorZoom.current > 2) return;
         editorZoom.current += 0.1;
@@ -260,13 +260,13 @@ export const InteractiveSlingShot = () => {
       canvas.removeEventListener('pointerdown', onMouseDown);
       canvas.removeEventListener('pointermove', onMouseMoveAnywhere);
       canvas.removeEventListener('pointerup', onMouseUpAnywhere);
-      canvas.removeEventListener('scroll', onMouseWheel as any);
+      canvas.removeEventListener('wheel', onMouseWheel as any);
     };
   }, [canvas]);
 
   return (
     <group>
-      <Gear scale={[0.02, 0.08, 0.02]} position={[0.5, 0, 0]} rotation={new Euler().setFromVector3(new Vector3(0, 0, 1.56).add(new Vector3(platformRotation.y, 0, 0)))} />
+      <Gear scale={[0.02, 0.08, 0.02]} position={[0.5, 0.5, 0]} rotation={new Euler().setFromVector3(new Vector3(0, 0, 1.56).add(new Vector3(platformRotation.y, 0, 0)))} />
       <group ref={container}>
         <group ref={cameraTarget} position={[0, 2, 0]} />
         <group ref={cameraPosition} position={[0, 10, 15]} />
@@ -275,12 +275,13 @@ export const InteractiveSlingShot = () => {
         <group ref={catapult}>
           <group position={centerSlingShotPosition.current} />
 
-          <Gear scale={[0.05, 0.05, 0.05]} position={[4, -0.1, 2]} rotation={platformRotation} />
-          <RigidBody colliders={false} type="fixed" position-y={-0.5}>
-            <CylinderCollider args={[1 / 2, 5]} />
-            <Cylinder scale={[5, 1, 5]} receiveShadow>
+          <Gear scale={[0.06, 0.06, 0.06]} position={[-2.25, -0.1, 4.2]} rotation={platformRotation} />
+          <RigidBody colliders={'trimesh'} type="fixed" position-y={-0.5}>
+            {/* <CylinderCollider args={[1 / 2, 5]} /> */}
+            {/* <Cylinder scale={[5, 1, 5]} receiveShadow>
               <meshStandardMaterial color={'brown'} />
-            </Cylinder>
+            </Cylinder> */}
+            <SlingShotPlatform />
           </RigidBody>
           <Slingshot rotation={[0, -Math.PI / 2, 0]} scale={[5, 5, 5]} />
         </group>

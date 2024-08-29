@@ -17,6 +17,7 @@ export const Auth = () => {
 
   const [email, setEmail] = React.useState('');
   const [showOTP, setShowOTP] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const [showLogin, setShowLogin] = React.useState(false);
   const onSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -26,7 +27,7 @@ export const Auth = () => {
       const { otp } = e.target as typeof e.target & {
         otp: { value: string };
       };
-      console.log(otp.value);
+
       const p = await Mona.OTP_Verify(email, otp.value);
       if (p.success) {
         const user = await Mona.getUser();
@@ -44,8 +45,9 @@ export const Auth = () => {
     };
 
     setEmail(_email.value);
-
+    setLoading(true);
     await Mona.OTP_Generate(_email.value);
+    setLoading(false);
     setShowOTP(true);
   };
 
@@ -57,7 +59,7 @@ export const Auth = () => {
           <span className="text-sm">Select an item from your assets</span>
         </div>
         <button
-          className="py-1 px-2 border-black bg-white hover:bg-white/50 border-solid border-2 rounded-md"
+          className="py-1 px-2 border-black bg-white hover:bg-white/50 border-solid border-2 rounded-md pointer-events-auto"
           onClick={() => {
             resetUser();
             Mona.logout();
@@ -71,9 +73,15 @@ export const Auth = () => {
 
   return (
     <>
-      <motion.form className="flex gap-1 p-2 rounded-md bg-white" variants={variants} initial={'closed'} animate={showLogin ? 'open' : 'closed'} onSubmit={onSubmitForm}>
+      <motion.form
+        className="flex gap-1 p-2 pointer-events-none select-none rounded-md bg-white"
+        variants={variants}
+        initial={'closed'}
+        animate={showLogin ? 'open' : 'closed'}
+        onSubmit={onSubmitForm}
+      >
         <div
-          className="flex flex-col gap-1 cursor-pointer"
+          className="flex flex-col gap-1 cursor-pointer pointer-events-auto"
           onClick={() => {
             setShowLogin(!showLogin);
           }}
@@ -85,15 +93,16 @@ export const Auth = () => {
         <div className="flex gap-2">
           {!showOTP ? (
             <label htmlFor="email">
-              Email: <input key="email_" name="email" className="w-full" type="email" placeholder="Email" />
+              Email:{' '}
+              {loading ? <div className="w-full">Loading...</div> : <input key="email_" name="email" className="w-full pointer-events-auto" type="email" placeholder="Email" />}
             </label>
           ) : (
             <label htmlFor="otp">
               OTP sent to your email
-              <input key="otp_" name="otp" type="text" className="w-full" placeholder="OTP" maxLength={6} />
+              <input key="otp_" name="otp" type="text" className="w-full pointer-events-auto" placeholder="OTP" maxLength={6} />
             </label>
           )}
-          <button className="px-2 bg-slate-200 rounded-md">Login</button>
+          <button className="px-2 bg-slate-200 rounded-md pointer-events-auto">Login</button>
         </div>
       </motion.form>
     </>

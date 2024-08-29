@@ -68,7 +68,6 @@ export const ImportedAsset = React.forwardRef((props: { name: string; importedAs
 
       group.scale.set(scale, scale, scale);
 
-      console.log('loaded', onLoaded);
       group.userData = { scaled: true };
       onLoaded && onLoaded(group);
     }
@@ -175,10 +174,8 @@ export const AmmoController = ({ originalPosition }: { originalPosition: Vector3
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    console.log('currentAmmoIndex change');
-    timeoutRef.current = setTimeout(() => {
-      console.log('timeout currentAmmoIndex change');
 
+    timeoutRef.current = setTimeout(() => {
       useSlingShotStore.setState((state) => {
         return {
           currentAmmoRef: refs[currentAmmoIndex]?.current || null,
@@ -203,7 +200,7 @@ export const AmmoController = ({ originalPosition }: { originalPosition: Vector3
     <>
       {ammoLoadout.map((ammo, index) => {
         const pos = ammo.position!;
-        return <Ammo ref={refs[index]} onIntersectionEnter={onHitWater} importedAssets={importedAssets[String(index)]} key={ammo.id} position={pos} />;
+        return <Ammo ref={refs[index]} onIntersectionEnter={onHitWater} importedAssets={importedAssets[String(index)]} key={ammo.uuid} position={pos} />;
       })}
     </>
   );

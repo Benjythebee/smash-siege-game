@@ -14,12 +14,13 @@ declare global {
   }
 }
 export const Ocean = () => {
+  console.log('Ocean render');
   const ref = useRef(null);
   const gl = useThree((state) => state.gl);
   const waterNormals = useLoader(TextureLoader, '/textures/waternormals.jpg');
 
   waterNormals.wrapS = waterNormals.wrapT = RepeatWrapping;
-  const geom = useMemo(() => new PlaneGeometry(30000, 30000), []);
+  const geom = useMemo(() => new PlaneGeometry(3000, 3000), []);
   const config = useMemo(
     () => ({
       textureWidth: 512,

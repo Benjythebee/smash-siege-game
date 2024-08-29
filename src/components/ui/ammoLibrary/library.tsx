@@ -7,7 +7,7 @@ export const AmmoLibrary = () => {
   const isHidden = menuStatus !== MenuStatus.HIDDEN;
 
   return (
-    <div className={`AmmoLibrary z-20 absolute bottom-0 right-0 overflow-hidden h-[20rem] w-[30rem] ${isHidden ? 'hidden' : ''}`}>
+    <div className={`AmmoLibrary z-20 absolute bottom-0 right-0 overflow-hidden h-[20rem] w-[30rem] pointer-events-none select-none ${isHidden ? 'hidden' : ''}`}>
       <div className="flex flex-col h-full w-full">
         <Inventory />
 

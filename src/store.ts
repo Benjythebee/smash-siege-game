@@ -11,6 +11,7 @@ import { Vector3 } from "three";
 import { onReloadLevel } from "./observables";
 import { useLevelBuilderStore } from "./components/ui/LevelBuilder";
 import { playSoundProgrammatically } from "./libs/sounds/soundContext";
+import { slingShotCenterPositionVector } from "./components/3d/Slingshot";
 
 export enum MenuStatus {
     MAIN_MENU,
@@ -24,6 +25,7 @@ export enum MenuStatus {
 export type ammoLoadoutType = {
     id:string,
     name:string
+    uuid:string
     released:boolean
     position?:Vector3
     rotation?:Vector3
@@ -31,9 +33,10 @@ export type ammoLoadoutType = {
 const generateAmmo = (num:number):ammoLoadoutType[]=>{
     return Array(num).fill(0).map((_,i)=>{
         return {id:'ammo'+i,
+            uuid:uuidv4(),
             name:'ammo'+i,
             released:false,
-            position:new Vector3(0,-8,0)}
+            position:i==0?slingShotCenterPositionVector:new Vector3(0,-8,0)}
     })
 }
 
@@ -118,7 +121,12 @@ const timeouts:{
     onAllBrokenTimeout:null,
     onOutOfAmmoTimeout:null
 }
-
+const clearTimeouts = ()=>{
+    timeouts.onAllBrokenTimeout && clearTimeout(timeouts.onAllBrokenTimeout)
+    timeouts.onOutOfAmmoTimeout && clearTimeout(timeouts.onOutOfAmmoTimeout)
+    timeouts.onAllBrokenTimeout=null
+    timeouts.onOutOfAmmoTimeout=null
+}
 
 useCurrentLevelState.subscribe((state)=>{
     if(!state.components || state.components.length==0){
@@ -142,34 +150,28 @@ useCurrentLevelState.subscribe((state)=>{
 })
 
 useSlingShotStore.subscribe((state)=>{
-    console.log(state)
-    const s = useGameStore.getState()
-    console.log('sl',s)
-    if(s.menuState!==MenuStatus.HIDDEN) return
-
-
+    const gameState = useGameStore.getState()
+    if(gameState.menuState!==MenuStatus.HIDDEN) return
     // Show score if we're out of ammo
     if(state.isOutOfAmmo() && !timeouts.onOutOfAmmoTimeout){
-        const lastLevelScore = useGameStore.getState().scoreByLevel[useGameStore.getState().level]?.score||0
-        const currentSCore = useGameStore.getState().score
+        const lastLevelScore = gameState.scoreByLevel[gameState.level]?.score||0
+        const currentSCore = gameState.score
         if(lastLevelScore<currentSCore){
-            useGameStore.getState().setScoreByLevel(useGameStore.getState().score,useSlingShotStore.getState().currentAmmoIndex+1)
+            gameState.setScoreByLevel(gameState.score,useSlingShotStore.getState().currentAmmoIndex+1)
         }
         timeouts.onOutOfAmmoTimeout=setTimeout(()=>{
+            console.log('out of ammo')
             useGameStore.setState({menuState:MenuStatus.SCORE})
-            timeouts.onAllBrokenTimeout=null
-            timeouts.onOutOfAmmoTimeout=null
+            clearTimeouts()
         },5000)
     }
 })
 // clear all timeouts on level change
 let currentLevel = 0
 useGameStore.subscribe((state)=>{
-    console.log('g',state)
     if(state.level!==currentLevel){
         // clear all timeouts
-        timeouts.onAllBrokenTimeout && clearTimeout(timeouts.onAllBrokenTimeout)
-        timeouts.onOutOfAmmoTimeout && clearTimeout(timeouts.onOutOfAmmoTimeout)
+        clearTimeouts()
         currentLevel = state.level
     }
 })
@@ -222,8 +224,7 @@ export const resetLevel = (number?:number)=>{
         currentAmmoRef:null
     })
 
-    timeouts.onAllBrokenTimeout && clearTimeout(timeouts.onAllBrokenTimeout)
-    timeouts.onOutOfAmmoTimeout && clearTimeout(timeouts.onOutOfAmmoTimeout)
+    clearTimeouts()
 }
 
 export const clearLevel = ()=>{
@@ -237,6 +238,7 @@ export const clearLevel = ()=>{
     useGameStore.setState({
         score:0,
     })
+    clearTimeouts()
 }
 
 export const addExplosion = (explosion:Omit<ExplosionType,'guid'>)=>{

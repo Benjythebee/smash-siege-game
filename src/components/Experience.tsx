@@ -71,6 +71,7 @@ export const Experience = () => {
       <Ocean />
       <LevelManager />
       <Explosions />
+      <fog attach="fog" args={['white', 100, 120]} />
       <SeagullObject />
       <InteractiveSlingShot />
     </>

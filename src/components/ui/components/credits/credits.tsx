@@ -60,13 +60,13 @@ export const CreditAccordion = () => {
       <div className="flex flex-col gap-2">
         <span className="font-bold">Assets:</span>
         {Credits.content.map((item, index) => (
-          <Accordion key={item.link} content={item} index={index} expanded={index == expandedContentNum} setExpanded={setExpandedContentNum} />
+          <Accordion key={item.link + item.item} content={item} index={index} expanded={index == expandedContentNum} setExpanded={setExpandedContentNum} />
         ))}
       </div>
       <div className="flex flex-col gap-2">
         <span className="font-bold">Music & Audio:</span>
         {Credits.musicAudio.map((item, index) => (
-          <Accordion key={item.link} content={item} index={index} expanded={index == expandedMusicNum} setExpanded={setExpandedMusicNum} />
+          <Accordion key={item.link + item.item} content={item} index={index} expanded={index == expandedMusicNum} setExpanded={setExpandedMusicNum} />
         ))}
       </div>
     </div>
