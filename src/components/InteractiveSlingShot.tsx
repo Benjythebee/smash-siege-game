@@ -1,12 +1,12 @@
-import { Cylinder, Line } from '@react-three/drei';
-import { CylinderCollider, RigidBody, useRapier } from '@react-three/rapier';
+import { Line } from '@react-three/drei';
+import { RigidBody, useRapier } from '@react-three/rapier';
 import { Slingshot, slingShotCenterPositionVector } from './3d/Slingshot';
 import { ElasticBand } from './3d/ElasticBand';
 import { useCallback, useEffect, useRef, useState, WheelEvent } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Euler, Group, Quaternion, Vector2, Vector3 } from 'three';
+import { Euler, Group, Vector2, Vector3 } from 'three';
 import { AmmoController } from './ammo';
-import { currentAmmoPosition, isAmmoReleased, markAmmoAsReleased, MenuStatus, moveCurrentAmmo, useCurrentLevelState, useGameStore, useSlingShotStore } from '../store';
+import { currentAmmoPosition, isAmmoReleased, markAmmoAsReleased, MenuStatus, moveCurrentAmmo, useGameStore, useSlingShotStore } from '../store';
 import { useArrowKeys } from './hooks/use-controls';
 import { Gear } from './3d/Gear';
 import { onReloadLevel, onSlingshotLoadingObservable, onSlingshotReleaseObservable } from '../observables';
@@ -14,7 +14,6 @@ import { useEditorStore } from './ui/levelBuilder/Editor.store';
 import { useSoundContext } from '../libs/sounds/soundContext';
 import { SlingShotPlatform } from './3d/SlingShotPlatform';
 
-const originAmmo = [0, 3.2, 0];
 const elasticConstant = 12;
 
 const elasticForce = (distance: number) => {
@@ -22,8 +21,6 @@ const elasticForce = (distance: number) => {
 };
 
 export const InteractiveSlingShot = () => {
-  const currentAmmoRef = useSlingShotStore((state) => state.currentAmmoRef);
-
   const { playSound } = useSoundContext();
   const container = useRef<Group>(null);
   const cameraTarget = useRef<Group>(null);
@@ -178,7 +175,7 @@ export const InteractiveSlingShot = () => {
   };
 
   const computeBulletPosition = useCallback(
-    (distance: number, YDelta: number) => {
+    (distance: number, _YDelta: number) => {
       const direction = new Vector3(0, 0, 1);
       direction.applyQuaternion(container.current!.quaternion);
       const newPosition = new Vector3();
@@ -211,7 +208,7 @@ export const InteractiveSlingShot = () => {
         pointerDragged.current = new Vector2().set((event.clientX / canvas.clientWidth) * 2 - 1, -(event.clientY / canvas.clientHeight) * 2 + 1);
       }
     };
-    const onMouseUpAnywhere = (event: MouseEvent) => {
+    const onMouseUpAnywhere = (_event: MouseEvent) => {
       pointerDown.current = null;
       pointerDragged.current = null;
       // We're out of ammo, ignore click

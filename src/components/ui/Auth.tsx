@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Mona from '../../libs/mona';
 import { resetUser, setUser, useUserStore } from '../userStore';
 import { motion } from 'framer-motion';

@@ -1,4 +1,4 @@
-import type { Observable } from '../../utils/observable'
+import type { Observable } from '../../observable'
 import type { Analyser } from '../lib/analyser'
 import type { Nullable } from './types'
 

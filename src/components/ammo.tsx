@@ -1,11 +1,11 @@
-import { Sphere, useGLTF } from '@react-three/drei';
-import { BallCollider, CapsuleCollider, IntersectionEnterPayload, RapierCollider, RapierRigidBody, RigidBody, RigidBodyProps } from '@react-three/rapier';
-import React, { createRef, ForwardedRef, Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Box3, Group, Mesh, MeshBasicMaterial, ShaderMaterial, SphereGeometry, Vector3 } from 'three';
-import { moveCurrentAmmo, useGameStore, useSlingShotStore } from '../store';
+import { useGLTF } from '@react-three/drei';
+import { BallCollider, CapsuleCollider, IntersectionEnterPayload, RapierRigidBody, RigidBody, RigidBodyProps } from '@react-three/rapier';
+import React, { ForwardedRef, Suspense, useEffect, useRef } from 'react';
+import { Box3, Group, Mesh, ShaderMaterial, Vector3 } from 'three';
+import { useSlingShotStore } from '../store';
 import { AnimationResponse } from '../libs/mona';
 import { VRM, VRMUtils } from '@pixiv/three-vrm';
-import { Euler, useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { RandomRockAmmo } from './3d/RockAmmo';
 
 const loadingShaderVertex = `

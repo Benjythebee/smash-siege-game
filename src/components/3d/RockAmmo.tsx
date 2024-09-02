@@ -26,6 +26,7 @@ export const RandomRockAmmo = React.forwardRef((props: JSX.IntrinsicElements['gr
   const randomRotation = useRef<number[]>([Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI]);
 
   return (
+    // @ts-ignore
     <group ref={ref} {...props} dispose={null} rotation={new THREE.Euler().fromArray(randomRotation.current as any)}>
       {rock.current == 0 && <mesh geometry={nodes.Rock_1.geometry} material={materials.Rock_Grey} />}
       {rock.current == 1 && <mesh geometry={nodes.Rock_2.geometry} material={materials['455A64']} />}
