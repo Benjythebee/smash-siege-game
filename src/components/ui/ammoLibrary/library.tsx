@@ -4,8 +4,10 @@ import { MenuStatus, useGameStore } from '../../../store';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/button/button';
+import { useUserStore } from '../../userStore';
 
 export const AmmoLibrary = () => {
+  const user = useUserStore((s) => s.user);
   const [show, setShow] = useState(true);
   const menuStatus = useGameStore((state) => state.menuState);
   const isHidden = menuStatus !== MenuStatus.HIDDEN;
@@ -27,7 +29,7 @@ export const AmmoLibrary = () => {
                 : { y: 230, zIndex: 0 }
             }
           >
-            <div className="absolute top-0 right-5 select-none">
+            <div className={`absolute top-0 right-5 select-none ${user ? '' : 'hidden'}`}>
               <Button onClick={() => setShow(!show)} className=" pointer-events-auto" text={show ? 'Hide' : 'View'} theme="white" size="xsmall" />
             </div>
             <Inventory />
