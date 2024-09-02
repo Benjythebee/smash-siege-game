@@ -2,7 +2,7 @@
 
 interface ImportMetaEnv {
     readonly VITE_MONA_APP_ID: string
-    readonly VITE_PHYSICS_DEBUG: boolean
+    readonly VITE_PHYSICS_DEBUG: string
     // more env variables...
   }
   
