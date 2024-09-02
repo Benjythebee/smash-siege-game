@@ -1,5 +1,3 @@
-'use client'
-
 import { MenuStatus, useGameStore } from '../../store'
 import { useUserSettings } from '../settings/useUserSettings'
 import { isTablet } from './detectors'
