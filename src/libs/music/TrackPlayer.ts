@@ -90,7 +90,7 @@ export class TrackPlayer extends EventEmitter {
   }
 
   get musicUri() {
-    return `./sounds/` // cdn is default
+    return `./sounds` // cdn is default
   }
 
   fadeIn(timeConstant: number) {
