@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import { MonaAPI, MonaUser, TokenAnimatable } from "../libs/mona";
+import { MonaUser, TokenAnimatable } from "../libs/mona";
 
 
 export const useUserStore = create<{
     user: MonaUser | null
     inventory: TokenAnimatable[]
-}>((set)=>({
+}>(()=>({
     user: null,
     inventory: [],
 }))

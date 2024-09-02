@@ -53,8 +53,6 @@ export const AmmoLibraryCards = ({ items }: { items: TokenAnimatable[] }) => {
   const [viewPage, setViewingPage] = React.useState<number>(0);
   const computedStyle = (index: number) => {
     if (!container.current) return { margin: 0, angle: 0 };
-    const w = container.current!.offsetWidth;
-    const totalarc = 60;
     const maxSpacing = -20;
     const numcards = TOTALCARDS;
     // const angle = (totalarc / numcards) * (index + 1) - (totalarc / 2 + totalarc / numcards / 2);

@@ -4,7 +4,6 @@ Rock by Quaternius (https://poly.pizza/m/b7gRkv0cEa)
 */
 
 import * as THREE from 'three';
-import React from 'react';
 import { useGLTF } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
 

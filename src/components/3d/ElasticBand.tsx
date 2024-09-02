@@ -4,28 +4,11 @@ Command: npx gltfjsx@6.5.0 ./public/models/elastic.glb -t
 */
 
 import * as THREE from 'three';
-import { GLTF } from 'three-stdlib';
 import { useFrame } from '@react-three/fiber';
 import React, { useEffect, useRef } from 'react';
 import { currentAmmoPosition } from '../../store';
 import { create } from 'zustand';
 import { onSlingshotLoadingObservable, onSlingshotReleaseObservable } from '../../observables';
-
-type ActionName = 'actionNameOne' | 'actionNameTwo';
-
-interface GLTFAction extends THREE.AnimationClip {
-  name: ActionName;
-}
-
-type GLTFResult = GLTF & {
-  nodes: {
-    Plane: THREE.Mesh;
-  };
-  materials: {
-    ['Material.001']: THREE.MeshStandardMaterial;
-  };
-  animations: GLTFAction[];
-};
 
 const vertexShader = `
 uniform float uTime;
@@ -87,7 +70,7 @@ const fragmentShader = `
     }
 `;
 
-const releaseTimeStore = create<number>((set) => 0);
+const releaseTimeStore = create<number>(() => 0);
 
 export function ElasticBand(props: JSX.IntrinsicElements['group'] & { container: THREE.Group; pointA?: THREE.Vector3 }) {
   const { position, container, ...rest } = props;

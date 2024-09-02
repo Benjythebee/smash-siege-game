@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { create } from 'zustand';
 import { LevelData, levelsData } from '../../libs/levels';
-import { clearLevel, endGame, MenuStatus, resetLevel, useGameStore } from '../../store';
+import { clearLevel, endGame, MenuStatus, useGameStore } from '../../store';
 import { defaultEnvironmentProps, defaultFeatureProps, defaultPlatformProps, EnvironmentFeatureProp, LevelPlatformProp } from '../../libs/levels/types';
 import { useEditorStore } from './levelBuilder/Editor.store';
 import React from 'react';
@@ -15,7 +15,7 @@ const emptyLevel = {
   environment: []
 };
 
-export const useLevelBuilderStore = create<LevelData>()((set) => structuredClone(emptyLevel));
+export const useLevelBuilderStore = create<LevelData>()(() => structuredClone(emptyLevel));
 
 const addEnvironment = (newEnv: EnvironmentFeatureProp) => {
   const env = useLevelBuilderStore.getState().environment;
@@ -197,7 +197,7 @@ export const LevelBuilder = () => {
               </button>
             </div>
             <div className="flex flex-col gap-2">
-              {environment?.map((env, index) => (
+              {environment?.map((env, _index) => (
                 <div
                   className="hover:bg-slate-700 cursor-pointer"
                   key={env.uuid}
