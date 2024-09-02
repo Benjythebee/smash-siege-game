@@ -106,59 +106,63 @@ const LoadingImport = () => {
 
 ImportedAsset.displayName = 'ImportedAsset';
 
-export const Ammo = React.forwardRef(({ position, importedAssets }: RigidBodyProps & { importedAssets?: AnimationResponse }, ref: ForwardedRef<RapierRigidBody>) => {
-  const importedAssetRef = useRef(null);
-  const centerRef = useRef<Group>(null);
+export const Ammo = React.forwardRef(
+  ({ position, released, importedAssets }: RigidBodyProps & { importedAssets?: AnimationResponse; released: boolean }, ref: ForwardedRef<RapierRigidBody>) => {
+    const importedAssetRef = useRef(null);
+    const centerRef = useRef<Group>(null);
 
-  const onLoadedImported = (group: Group) => {
-    const center = centerRef.current?.getWorldPosition(new Vector3());
-    console.log('onLoadedImported', importedAssetRef.current, center);
-    if (importedAssetRef.current && center) {
-      //@ts-ignore
-      useSlingShotStore.setState({ currentAmmoRef: ref.current, ammoLoaded: true });
+    const onLoadedImported = (group: Group) => {
+      const center = centerRef.current?.getWorldPosition(new Vector3());
+      if (importedAssetRef.current && center) {
+        useSlingShotStore.setState(() => {
+          return {
+            ammoLoaded: true
+          };
+        });
 
-      const groupToMove = 'scene' in group ? (group.scene as Group) : group;
-      // For some reason VRM models are not willing to cooperate with the code below;
-      if (importedAssets?.animationFiletype == 'vrm') {
-        groupToMove.position.copy(new Vector3(0, -1, 0));
-        return;
+        const groupToMove = 'scene' in group ? (group.scene as Group) : group;
+        // For some reason VRM models are not willing to cooperate with the code below;
+        if (importedAssets?.animationFiletype == 'vrm') {
+          groupToMove.position.copy(new Vector3(0, -1, 0));
+          return;
+        }
+
+        // Get center of bounding box of the group;
+        const box = new Box3().setFromObject(groupToMove);
+        const bbcenter = new Vector3();
+        box.getCenter(bbcenter);
+
+        // console.log('ammo center', center);
+        // console.log('bbcenter', bbcenter);
+        // console.log('group pos', groupToMove.position);
+        // console.log('group world', groupToMove.getWorldPosition(new Vector3()));
+
+        // compute difference between center of bounding box and center of the group
+        const diff = bbcenter.clone().sub(center);
+        // move the group by the difference
+        groupToMove.position.sub(diff);
       }
+    };
 
-      // Get center of bounding box of the group;
-      const box = new Box3().setFromObject(groupToMove);
-      const bbcenter = new Vector3();
-      box.getCenter(bbcenter);
-
-      // console.log('ammo center', center);
-      // console.log('bbcenter', bbcenter);
-      // console.log('group pos', groupToMove.position);
-      // console.log('group world', groupToMove.getWorldPosition(new Vector3()));
-
-      // compute difference between center of bounding box and center of the group
-      const diff = bbcenter.clone().sub(center);
-      // move the group by the difference
-      groupToMove.position.sub(diff);
-    }
-  };
-
-  return importedAssets ? (
-    //@ts-ignore
-    <RigidBody ref={ref} position={position} canSleep={false} colliders={false} type={'kinematicPosition'}>
-      <group ref={centerRef} />
-      {importedAssets.animationType == 'avatar' ? <CapsuleCollider name="ammo" args={[0.5, 0.5]} /> : <BallCollider name="ammo" args={[0.5]} />}
-      <Suspense fallback={<LoadingImport />}>
-        <ImportedAsset ref={importedAssetRef} onLoaded={onLoadedImported} name="ammo" importedAsset={importedAssets} />
-      </Suspense>
-    </RigidBody>
-  ) : (
-    //@ts-ignore
-    <RigidBody ref={ref} position={position} ccd={true} canSleep={false} colliders={false} type={'kinematicPosition'}>
-      <group ref={centerRef} />
-      <BallCollider name="ammo" args={[0.65]} />
-      <RandomRockAmmo name="ammo" receiveShadow />
-    </RigidBody>
-  );
-});
+    return importedAssets ? (
+      //@ts-ignore
+      <RigidBody ref={ref} position={position} canSleep={false} colliders={false} type={released ? 'dynamic' : 'kinematicPosition'}>
+        <group ref={centerRef} />
+        {importedAssets.animationType == 'avatar' ? <CapsuleCollider name="ammo" args={[0.5, 0.5]} /> : <BallCollider name="ammo" args={[0.5]} />}
+        <Suspense fallback={<LoadingImport />}>
+          <ImportedAsset ref={importedAssetRef} onLoaded={onLoadedImported} name="ammo" importedAsset={importedAssets} />
+        </Suspense>
+      </RigidBody>
+    ) : (
+      //@ts-ignore
+      <RigidBody ref={ref} position={position} ccd={true} canSleep={false} colliders={false} type={released ? 'dynamic' : 'kinematicPosition'}>
+        <group ref={centerRef} />
+        <BallCollider name="ammo" args={[0.65]} />
+        <RandomRockAmmo name="ammo" receiveShadow />
+      </RigidBody>
+    );
+  }
+);
 
 Ammo.displayName = 'Ammo';
 
@@ -167,7 +171,6 @@ export const AmmoController = ({ originalPosition }: { originalPosition: Vector3
   const currentAmmoIndex = useSlingShotStore((state) => state.currentAmmoIndex);
   const importedAssets = useSlingShotStore((state) => state.importedAssets);
 
-  const refs = useMemo(() => ammoLoadout.map(() => createRef<RapierRigidBody>()), []);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -178,7 +181,6 @@ export const AmmoController = ({ originalPosition }: { originalPosition: Vector3
     timeoutRef.current = setTimeout(() => {
       useSlingShotStore.setState((state) => {
         return {
-          currentAmmoRef: refs[currentAmmoIndex]?.current || null,
           ammoLoadout: state.ammoLoadout.map((ammo, index) => {
             if (index == state.currentAmmoIndex) {
               return { ...ammo, position: originalPosition.clone() };
@@ -200,7 +202,10 @@ export const AmmoController = ({ originalPosition }: { originalPosition: Vector3
     <>
       {ammoLoadout.map((ammo, index) => {
         const pos = ammo.position!;
-        return <Ammo ref={refs[index]} onIntersectionEnter={onHitWater} importedAssets={importedAssets[String(index)]} key={ammo.uuid} position={pos} />;
+        const ref = ammoLoadout[index].ref;
+        return (
+          <Ammo ref={ref} onIntersectionEnter={onHitWater} released={ammoLoadout[index].released} importedAssets={importedAssets[String(index)]} key={ammo.uuid} position={pos} />
+        );
       })}
     </>
   );

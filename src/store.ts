@@ -12,6 +12,7 @@ import { onReloadLevel } from "./observables";
 import { useLevelBuilderStore } from "./components/ui/LevelBuilder";
 import { playSoundProgrammatically } from "./libs/sounds/soundContext";
 import { slingShotCenterPositionVector } from "./components/3d/Slingshot";
+import React from "react";
 
 export enum MenuStatus {
     MAIN_MENU,
@@ -26,6 +27,7 @@ export type ammoLoadoutType = {
     id:string,
     name:string
     uuid:string
+    ref:React.MutableRefObject<RapierRigidBody|null>
     released:boolean
     position?:Vector3
     rotation?:Vector3
@@ -35,6 +37,7 @@ const generateAmmo = (num:number):ammoLoadoutType[]=>{
         return {id:'ammo'+i,
             uuid:uuidv4(),
             name:'ammo'+i,
+            ref:React.createRef<RapierRigidBody>(),
             released:false,
             position:i==0?slingShotCenterPositionVector:new Vector3(0,-8,0)}
     })
@@ -82,7 +85,7 @@ export const useSlingShotStore = create<{
     isOutOfAmmo:()=>boolean
     setCurrentAmmoIndex:(index:number)=>void
     selectImportedAsset:(asset:AnimationResponse)=>void
-    currentAmmoRef:RapierRigidBody|null
+    currentAmmoRef:()=>RapierRigidBody|null
 }>((set,get)=>({
     currentAmmoIndex:-1,
     importedAssets:{},
@@ -102,7 +105,7 @@ export const useSlingShotStore = create<{
         set((state)=>({importedAssets:{...m,[String(state.currentAmmoIndex)]:asset},ammoLoaded: false}))
     },
     setCurrentAmmoIndex:(index:number)=>set({currentAmmoIndex:index}),
-    currentAmmoRef:null
+    currentAmmoRef:()=>get().ammoLoadout[get().currentAmmoIndex]?.ref.current
 }))
 
 export const useCurrentLevelState = create<LevelData>((set,get)=>{
@@ -163,7 +166,7 @@ useSlingShotStore.subscribe((state)=>{
             console.log('out of ammo')
             useGameStore.setState({menuState:MenuStatus.SCORE})
             clearTimeouts()
-        },5000)
+        },3000)
     }
 })
 // clear all timeouts on level change
@@ -199,8 +202,7 @@ export const endGame = ()=>{
         importedAssets:{},
         ammoLoaded:true,
         explosions:[],
-        ammoLoadout:generateAmmo(levelsData[0].totalAmmo),
-        currentAmmoRef:null
+        ammoLoadout:generateAmmo(levelsData[0].totalAmmo)
     })
 }
 
@@ -220,8 +222,7 @@ export const resetLevel = (number?:number)=>{
         ammoLoaded:true,
         importedAssets:{},
         explosions:[],
-        ammoLoadout:generateAmmo(levelsData[level].totalAmmo),
-        currentAmmoRef:null
+        ammoLoadout:generateAmmo(levelsData[level].totalAmmo)
     })
 
     clearTimeouts()
@@ -254,6 +255,9 @@ export const moveCurrentAmmo = ( position:Vector3)=>{
     useSlingShotStore.setState((state) => ({
         ammoLoadout: state.ammoLoadout.map((ammo, index) => {
           if (index == state.currentAmmoIndex) {
+
+            if(ammo.released) return ammo
+
             console.log('moving ammo '+index)
             return { ...ammo, position: position.clone() };
           }

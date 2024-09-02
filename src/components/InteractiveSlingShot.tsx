@@ -66,7 +66,7 @@ export const InteractiveSlingShot = () => {
   };
 
   const releaseSlingShot = useCallback(() => {
-    const currentAmmoRef = useSlingShotStore.getState().currentAmmoRef;
+    const currentAmmoRef = useSlingShotStore.getState().currentAmmoRef();
     const currentAmmoIndex = useSlingShotStore.getState().currentAmmoIndex;
     if (!currentAmmoRef) {
       console.error('No ammo to release');
@@ -83,6 +83,7 @@ export const InteractiveSlingShot = () => {
     currentAmmoRef.setBodyType(0, true);
     const direction = computeBulletDirection();
     const scaled = direction.multiplyScalar(elasticForce(computeDistance()));
+
     currentAmmoRef.applyImpulse(scaled, true);
 
     playSwooshSound();
@@ -153,7 +154,7 @@ export const InteractiveSlingShot = () => {
 
       // Compute y differential
       const YDelta = pointerDragged.current.y - pointerDown.current.y;
-      const currentAmmoRef = useSlingShotStore.getState().currentAmmoRef;
+      const currentAmmoRef = useSlingShotStore.getState().currentAmmoRef();
       const activeIndex = useSlingShotStore.getState().currentAmmoIndex;
       const isCurrentReleased = isAmmoReleased(activeIndex);
       if (currentAmmoRef && !isCurrentReleased) {
@@ -194,10 +195,16 @@ export const InteractiveSlingShot = () => {
       // NOTE Do something when mouse is moving, regardless if it's within the object or not
       if (pointerDown.current) {
         // We're out of ammo, ignore click
-        if (useSlingShotStore.getState().isOutOfAmmo()) return;
-        if (releasing) return;
+        if (useSlingShotStore.getState().isOutOfAmmo()) {
+          console.warn('out of ammo');
+          return;
+        }
+        if (releasing) {
+          console.warn('releasing');
+          return;
+        }
         if (!useSlingShotStore.getState().ammoLoaded) {
-          console.log('ammo not loaded');
+          console.warn('ammo not loaded');
           return;
         }
         // dragging; get the difference in mouse position while draggging;

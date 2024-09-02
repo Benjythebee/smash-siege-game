@@ -11,6 +11,7 @@ const ButtonVariants = tv({
       red: 'bg-red-800 hover:bg-red-900 text-white'
     },
     size: {
+      xsmall: 'text-sm py-1 px-2',
       small: 'text-lg py-1 px-2',
       big: 'text-2xl py-2 px-4'
     }

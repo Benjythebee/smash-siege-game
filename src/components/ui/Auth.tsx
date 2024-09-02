@@ -53,7 +53,7 @@ export const Auth = () => {
 
   if (user) {
     return (
-      <div className="flex gap-1 p-2 rounded-md bg-white">
+      <div className="flex gap-1 p-2 rounded-md bg-white z-10">
         <div className="flex flex-col gap-1">
           <span className="text-lg font-bold  leading-3"> Logged in as {user.username} </span>
           <span className="text-sm">Select an item from your assets</span>
