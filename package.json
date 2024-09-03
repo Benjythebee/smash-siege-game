@@ -20,6 +20,7 @@
     "@types/three": "0.167.1",
     "framer-motion": "^11.3.28",
     "howler": "^2.2.4",
+    "mona-js-sdk": "^1.0.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-variants": "^0.2.1",

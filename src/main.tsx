@@ -13,7 +13,6 @@ import { AmbientAudioProvider } from './libs/music/AudioContext';
 import { SoundtrackInfo } from './libs/music';
 import { Footer } from './components/ui/Footer/footer';
 import { LevelProgressDetails } from './components/ui/levelProgress/levelProgress';
-import { usePersistedMonaAuth } from './libs/mona';
 
 //credits:
 // Fireside Tales and The_Bards_Tale by Darren Curtis | https://www.darrencurtismusic.com/
@@ -61,7 +60,6 @@ const soundtracks: Array<SoundtrackInfo> = [
 function Hydration() {
   useEffect(() => {
     useGameStore.persist.rehydrate();
-    usePersistedMonaAuth.persist.rehydrate();
   }, []);
 
   return null;

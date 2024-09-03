@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { RapierRigidBody } from "@react-three/rapier";
-import { AnimationResponse } from "./libs/mona";
+import { AnimationResponse } from "mona-js-sdk";
 import { persist } from "zustand/middleware";
 import { LevelData, levelsData } from "./libs/levels";
 import { ExplosionType } from "./components/3d/explosions/explosion";

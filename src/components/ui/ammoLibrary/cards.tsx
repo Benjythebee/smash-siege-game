@@ -1,5 +1,5 @@
 import React from 'react';
-import { TokenAnimatable } from '../../../libs/mona';
+import { TokenAnimatable } from 'mona-js-sdk';
 import { RightArrowSVG } from '../icons/rightArrow';
 import { AnimatePresence, motion, type Variants } from 'framer-motion';
 import { useSlingShotStore } from '../../../store';

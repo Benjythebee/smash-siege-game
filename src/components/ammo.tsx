@@ -3,7 +3,7 @@ import { BallCollider, CapsuleCollider, IntersectionEnterPayload, RapierRigidBod
 import React, { ForwardedRef, Suspense, useEffect, useRef } from 'react';
 import { Box3, Group, Mesh, ShaderMaterial, Vector3 } from 'three';
 import { useSlingShotStore } from '../store';
-import { AnimationResponse } from '../libs/mona';
+import { AnimationResponse } from 'mona-js-sdk';
 import { VRM, VRMUtils } from '@pixiv/three-vrm';
 import { useFrame } from '@react-three/fiber';
 import { RandomRockAmmo } from './3d/RockAmmo';

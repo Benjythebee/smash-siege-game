@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { MonaUser, TokenAnimatable } from "../libs/mona";
+import { MonaUser, TokenAnimatable } from 'mona-js-sdk';
 
 
 export const useUserStore = create<{

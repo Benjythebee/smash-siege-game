@@ -1999,6 +1999,11 @@ mmd-parser@^1.0.4:
   resolved "https://registry.npmjs.org/mmd-parser/-/mmd-parser-1.0.4.tgz"
   integrity sha512-Qi0VCU46t2IwfGv5KF0+D/t9cizcDug7qnNoy9Ggk7aucp0tssV8IwTMkBlDbm+VqAf3cdQHTCARKSsuS2MYFg==
 
+mona-js-sdk@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/mona-js-sdk/-/mona-js-sdk-1.0.6.tgz#65e68de95cde0199a22cb60a265cfaa344c9c3fe"
+  integrity sha512-Xm/YoK0xnARTtw6lESEfK3scwltz25d8xaOGu5UM/+xhvb+p3mUyzILJwharn5EsGa8BaK3obggr/ojfENs6zQ==
+
 ms@2.1.2:
   version "2.1.2"
   resolved "https://registry.npmjs.org/ms/-/ms-2.1.2.tgz"
