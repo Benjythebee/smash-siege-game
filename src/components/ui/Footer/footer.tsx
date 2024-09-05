@@ -1,8 +1,10 @@
 import { MenuStatus, resetLevel, useGameStore } from '../../../store';
+import { Button } from '../components/button/button';
+import { useSlingshot } from '../hooks/use-slingshot';
 
 export const Footer = () => {
   const { menuState } = useGameStore();
-
+  const { loading } = useSlingshot();
   const isVisible = menuState == MenuStatus.HIDDEN;
 
   const resetCurrentLevel = () => {
@@ -10,18 +12,10 @@ export const Footer = () => {
   };
   return (
     <>
-      <div className={`absolute z-20 pointer-events-none bottom-5 ${!isVisible ? 'hidden' : ''} flex w-full justify-between gap-2 px-4 `}>
+      <div className={`absolute z-20 pointer-events-none bottom-5 ${loading ? 'opacity-10' : ''} ${!isVisible ? 'hidden' : ''} flex w-full justify-between gap-2 px-4 `}>
         <div className="LeftSide flex gap-2 select-none items-center">
-          <button
-            className="text-4xl pointer-events-auto font-bold text-center hover:text-black/80 cursor-pointer"
-            onClick={() => useGameStore.setState({ menuState: MenuStatus.MAIN_MENU })}
-          >
-            Menu |
-          </button>
-
-          <button className="text-4xl pointer-events-auto font-bold text-center hover:text-black/80 cursor-pointer" onClick={() => resetCurrentLevel()}>
-            Reset
-          </button>
+          <Button className="pointer-events-auto" text="Menu" theme="white" size="small" onClick={() => useGameStore.setState({ menuState: MenuStatus.MAIN_MENU })} />
+          <Button className="pointer-events-auto" text="Reset" theme="white" size="small" onClick={() => resetCurrentLevel()} />
         </div>
       </div>
     </>

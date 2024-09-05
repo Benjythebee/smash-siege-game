@@ -6,4 +6,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [glsl(),nodePolyfills(),react()],
+  server:{
+    host:'192.168.1.3'
+  }
 })

@@ -13,6 +13,7 @@ import { onReloadLevel, onSlingshotLoadingObservable, onSlingshotReleaseObservab
 import { useEditorStore } from './ui/levelBuilder/Editor.store';
 import { useSoundContext } from '../libs/sounds/soundContext';
 import { SlingShotPlatform } from './3d/SlingShotPlatform';
+import { isMobile } from '../libs/music/detectors';
 
 const elasticConstant = 12;
 
@@ -188,7 +189,7 @@ export const InteractiveSlingShot = () => {
 
   useEffect(() => {
     if (!canvas) return;
-    const onMouseMoveAnywhere = (event: MouseEvent) => {
+    const onMouseMoveAnywhere = (event: MouseEvent | TouchEvent) => {
       // NOTE Do something when mouse is moving, regardless if it's within the object or not
       if (pointerDown.current) {
         // We're out of ammo, ignore click
@@ -204,11 +205,20 @@ export const InteractiveSlingShot = () => {
           console.warn('ammo not loaded');
           return;
         }
+
+        if ('touches' in event) {
+          const touch = event.touches[0];
+          const c = [(touch.clientX / canvas.clientWidth) * 2 - 1, -(touch.clientY / canvas.clientHeight) * 2 + 1] as const;
+          const pointer = new Vector2().set(...c);
+          pointerDragged.current = pointer;
+          return;
+        }
+
         // dragging; get the difference in mouse position while draggging;
         pointerDragged.current = new Vector2().set((event.clientX / canvas.clientWidth) * 2 - 1, -(event.clientY / canvas.clientHeight) * 2 + 1);
       }
     };
-    const onMouseUpAnywhere = (_event: MouseEvent) => {
+    const onMouseUpAnywhere = (_event: MouseEvent | TouchEvent) => {
       pointerDown.current = null;
       pointerDragged.current = null;
       // We're out of ammo, ignore click
@@ -228,7 +238,16 @@ export const InteractiveSlingShot = () => {
       setReleasing(true);
     };
 
-    const onMouseDown = (event: MouseEvent) => {
+    const onMouseDown = (event: MouseEvent | TouchEvent) => {
+      if ('touches' in event) {
+        const touch = event.touches[0];
+        const c = [(touch.clientX / canvas.clientWidth) * 2 - 1, -(touch.clientY / canvas.clientHeight) * 2 + 1] as const;
+        const pointer = new Vector2().set(...c);
+        pointerDown.current = pointer;
+        onSlingshotLoadingObservable.notifyObservers();
+        return;
+      }
+
       switch (event.button) {
         case 0: {
           // left
@@ -260,11 +279,22 @@ export const InteractiveSlingShot = () => {
     canvas.addEventListener('pointerup', onMouseUpAnywhere);
     canvas.addEventListener('wheel', onMouseWheel as any);
 
+    if (isMobile()) {
+      canvas.addEventListener('touchstart', onMouseDown);
+      canvas.addEventListener('touchmove', onMouseMoveAnywhere);
+      canvas.addEventListener('touchend', onMouseUpAnywhere);
+    }
+
     return () => {
       canvas.removeEventListener('pointerdown', onMouseDown);
       canvas.removeEventListener('pointermove', onMouseMoveAnywhere);
       canvas.removeEventListener('pointerup', onMouseUpAnywhere);
       canvas.removeEventListener('wheel', onMouseWheel as any);
+      if (isMobile()) {
+        canvas.removeEventListener('touchstart', onMouseDown);
+        canvas.removeEventListener('touchmove', onMouseMoveAnywhere);
+        canvas.removeEventListener('touchend', onMouseUpAnywhere);
+      }
     };
   }, [canvas]);
 
@@ -281,10 +311,6 @@ export const InteractiveSlingShot = () => {
 
           <Gear scale={[0.06, 0.06, 0.06]} position={[-2.25, -0.1, 4.2]} rotation={platformRotation} />
           <RigidBody colliders={'trimesh'} type="fixed" position-y={-0.5}>
-            {/* <CylinderCollider args={[1 / 2, 5]} /> */}
-            {/* <Cylinder scale={[5, 1, 5]} receiveShadow>
-              <meshStandardMaterial color={'brown'} />
-            </Cylinder> */}
             <SlingShotPlatform />
           </RigidBody>
           <Slingshot rotation={[0, -Math.PI / 2, 0]} scale={[5, 5, 5]} />

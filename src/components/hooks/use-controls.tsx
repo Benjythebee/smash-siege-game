@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { isMobile } from '../../libs/music/detectors';
+import { onTouchXRotate } from '../../observables';
+import { Observer } from '../../libs/observable';
 
 export const useArrowKeys = () => {
   const [arrowDown, setArrowDown] = useState({
@@ -41,9 +44,33 @@ export const useArrowKeys = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    let touchObserver: Observer<'right' | 'left' | null> | null = null;
+    if (isMobile()) {
+      const onXRotate = (direction: 'right' | 'left' | null) => {
+        console.log('onXRotate', direction);
+        if (!direction) {
+          const fakeKeyboardEvent1 = new KeyboardEvent('keyup', {
+            key: 'ArrowRight'
+          });
+          const fakeKeyboardEvent2 = new KeyboardEvent('keyup', {
+            key: 'ArrowLeft'
+          });
+          handleKeyUp(fakeKeyboardEvent1);
+          handleKeyUp(fakeKeyboardEvent2);
+          return;
+        }
+        const fakeKeyboardEvent = new KeyboardEvent('keydown', {
+          key: direction === 'right' ? 'ArrowRight' : 'ArrowLeft'
+        });
+        handleKeyDown(fakeKeyboardEvent);
+      };
+
+      touchObserver = onTouchXRotate.add(onXRotate);
+    }
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      touchObserver && onTouchXRotate.remove(touchObserver);
     };
   }, []);
 

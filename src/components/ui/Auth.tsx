@@ -2,13 +2,14 @@ import React from 'react';
 import Mona from '../../libs/mona';
 import { resetUser, setUser, useUserStore } from '../userStore';
 import { motion } from 'framer-motion';
+import { isMobile } from '../../libs/music/detectors';
 
 const variants = {
   open: {
     x: 0
   },
   closed: {
-    x: 280
+    x: isMobile() ? 290 : 280
   }
 };
 

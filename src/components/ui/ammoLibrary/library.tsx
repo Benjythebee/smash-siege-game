@@ -5,15 +5,19 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/button/button';
 import { useUserStore } from '../../userStore';
+import { useSlingshot } from '../hooks/use-slingshot';
 
 export const AmmoLibrary = () => {
   const user = useUserStore((s) => s.user);
   const [show, setShow] = useState(true);
+  const { loading } = useSlingshot();
   const menuStatus = useGameStore((state) => state.menuState);
   const isHidden = menuStatus !== MenuStatus.HIDDEN;
 
   return (
-    <div className={`AmmoLibrary z-20 absolute bottom-0 right-0 overflow-hidden h-[20rem] w-[30rem] pointer-events-none select-none ${isHidden ? 'hidden' : ''}`}>
+    <div
+      className={`AmmoLibrary z-20 absolute bottom-0 right-0 overflow-hidden h-[20rem] w-[30rem] pointer-events-none select-none ${loading ? 'opacity-10' : ''} ${isHidden ? 'hidden' : ''}`}
+    >
       <div className="relative h-full w-full">
         <div className={`flex flex-col-reverse h-full w-full`}>
           <Auth />

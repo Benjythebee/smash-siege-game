@@ -25,12 +25,12 @@ export const MenuPlayTab = () => {
   };
   return (
     <div className="h-full flex flex-col gap-4 ">
-      <div className="text-4xl font-bold mb-6  text-center">Siege Smash</div>
+      <div className="text-4xl uppercase font-bold mb-6  text-center">Siege Smash</div>
       <Button text={isResume ? 'Resume' : 'Play'} theme="green" size="big" onClick={playGame} />
-      <Button text="Levels" theme="blue" size="big" onClick={setLevelsTab} />
-      <Button text="Level Builder" theme="purple" size="big" onClick={startLevelBuilder} />
+      <Button text="Levels" theme="white" size="big" onClick={setLevelsTab} />
+      <Button text="Level Builder" theme="white" size="big" onClick={startLevelBuilder} />
 
-      <div className="flex justify-between">
+      <div className="flex justify-between gap-1">
         <Slider value={musicVolume} onChange={setMusicVolume} label="Music Volume" />
         <Slider value={sfxVolume} onChange={setSfxVolume} label="SFX Volume" />
       </div>

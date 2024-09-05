@@ -12,7 +12,7 @@ export const Slider = ({ value, onChange, label }: SliderProps) => {
 
   return (
     <div className="flex items-center">
-      <label htmlFor="volume" className="text-sm font-semibold">
+      <label htmlFor="volume" className="text-sm max-sm:text-xs font-semibold ">
         {label}
       </label>
       <input type="range" min={0} step={0.01} max={1} value={value} onChange={handleVolumeChange} className="w-full" />

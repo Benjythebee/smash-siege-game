@@ -11,7 +11,7 @@ export const Menu = () => {
     <>
       <div className={`absolute z-[19] w-full h-full bg-white/10 blur-sm ${isHidden ? 'hidden' : ''}`}></div>
       <div className={`absolute z-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md border-2 border-black border-solid ${isHidden ? 'hidden' : ''}`}>
-        <div className="relative h-full w-[40vw] py-5 px-10 bg-slate-900 text-white">
+        <div className="relative h-full md:w-[50vw] lg:w-[40vw] max-md:w-[80vw] py-5 px-10 bg-black text-white">
           {menuState == MenuStatus.MAIN_MENU ? (
             <MenuPlayTab />
           ) : menuState == MenuStatus.LEVELS ? (
