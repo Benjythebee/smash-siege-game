@@ -41,7 +41,7 @@ export const Inventory = () => {
     );
   }
 
-  if (true) {
+  if (inventory.length === 0) {
     return (
       <div className="relative w-full h-full select-none pointer-events-none  max-sm:flex max-sm:justify-center">
         <div className="md:absolute md:bottom-5 text-white max-sm:text-black ">
