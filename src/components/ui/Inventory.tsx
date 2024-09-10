@@ -3,11 +3,13 @@ import { setInventory, useUserStore } from '../userStore';
 import Mona from '../../libs/mona';
 import { AmmoLibraryCards } from './ammoLibrary/cards';
 import { LoadingIcon } from './icons/loader';
+import { useBreakpoints } from '../../libs/use-breakpoints';
+import { CardsMobile } from './ammoLibrary/cards.mobile';
 
 export const Inventory = () => {
   const { user, inventory } = useUserStore();
-  const [loading, setLoading] = useState(true);
-
+  const [loading, setLoading] = useState(false);
+  const { isMaxSm } = useBreakpoints();
   const loadInventory = React.useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -21,29 +23,40 @@ export const Inventory = () => {
 
   useEffect(() => {
     if (user) {
-      loadInventory();
+      setLoading(true);
+      if (!inventory.length) {
+        loadInventory().finally(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
     }
-  }, [user]);
+  }, [user, inventory]);
 
   if (!user) return <div className="h-full select-none"></div>;
 
-  return (
-    <div className="h-full w-full select-none">
-      {loading ? (
-        <div className="relative w-full h-full pointer-events-none">
-          <div className="absolute text-white top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
-            <LoadingIcon className="" width={60} height={60} />
-          </div>
+  if (loading) {
+    return (
+      <div className="relative w-full h-full pointer-events-none max-sm:flex max-sm:justify-center">
+        <div className="md:absolute  md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 text-white max-sm:text-black  ">
+          <LoadingIcon className="" width={60} height={60} />
         </div>
-      ) : inventory.length == 0 ? (
-        <div className="relative w-full h-full select-none pointer-events-none">
-          <div className="absolute text-white bottom-5">
-            <span className="font-bold">No Assets found.</span>
-          </div>
+      </div>
+    );
+  }
+
+  if (inventory.length == 0) {
+    return (
+      <div className="relative w-full h-full select-none pointer-events-none">
+        <div className="absolute text-white bottom-5">
+          <span className="font-bold">No Assets found.</span>
         </div>
-      ) : (
-        <AmmoLibraryCards items={inventory} />
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  if (isMaxSm) {
+    return <CardsMobile items={inventory} />;
+  }
+
+  return <AmmoLibraryCards items={inventory} />;
 };

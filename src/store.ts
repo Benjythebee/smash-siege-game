@@ -102,6 +102,8 @@ export const useSlingShotStore = create<{
     selectImportedAsset:(asset:AnimationResponse)=>{
         if(get().isOutOfAmmo()) return;
         const m = get().importedAssets
+        const isLoadingAnImportedAsset = !!m[String(get().currentAmmoIndex)] && !get().ammoLoaded
+        if(isLoadingAnImportedAsset) return
         set((state)=>({importedAssets:{...m,[String(state.currentAmmoIndex)]:asset},ammoLoaded: false}))
     },
     setCurrentAmmoIndex:(index:number)=>set({currentAmmoIndex:index}),

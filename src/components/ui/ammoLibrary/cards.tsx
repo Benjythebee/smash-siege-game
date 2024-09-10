@@ -1,50 +1,7 @@
 import React from 'react';
 import { TokenAnimatable } from 'mona-js-sdk';
 import { RightArrowSVG } from '../icons/rightArrow';
-import { AnimatePresence, motion, type Variants } from 'framer-motion';
-import { useSlingShotStore } from '../../../store';
-
-const CardAnimationVariants: Variants = {
-  hidden: { opacity: 0, y: 100 },
-  visible: { opacity: 1, y: 0 },
-  jump: { y: 0, opacity: [1, 0.5, 1], transition: { duration: 0.5, repeat: Infinity } }
-};
-
-const Card = ({ item, computedStyle }: { item: TokenAnimatable; computedStyle: { margin: number; angle: number } }) => {
-  const [isSelected, setSelected] = React.useState(false);
-
-  const selectAssetToImport = (selected: TokenAnimatable) => {
-    useSlingShotStore.getState().selectImportedAsset(selected.animation);
-  };
-
-  const onCardClick = () => {
-    setSelected(true);
-    setTimeout(() => setSelected(false), 1000);
-    selectAssetToImport(item);
-  };
-  return (
-    <AnimatePresence>
-      <motion.div
-        variants={CardAnimationVariants}
-        initial={'hidden'}
-        animate={isSelected ? 'jump' : 'visible'}
-        key={item.tokenId + item.name}
-        className="pointer-events-auto"
-        onClick={onCardClick}
-      >
-        <div
-          style={{ transform: `rotate(${computedStyle.angle}deg)`, marginLeft: `${computedStyle.margin}px` }}
-          className="card flex flex-col gap-2 h-full bg-white/90 origin-[bottom_right] p-2 rounded-md shadow-lg shadow-black cursor-pointer transition-all duration-150 hover:z-50 hover:-mt-4"
-        >
-          <div className="Image min-w-32 grow">
-            <img src={item.image} alt={item.name} />
-          </div>
-          <div className="Name font-bold text-xl">{item.name}</div>
-        </div>
-      </motion.div>
-    </AnimatePresence>
-  );
-};
+import { Card } from './card';
 
 const TOTALCARDS = 4;
 
@@ -55,11 +12,8 @@ export const AmmoLibraryCards = ({ items }: { items: TokenAnimatable[] }) => {
     if (!container.current) return { margin: 0, angle: 0 };
     const maxSpacing = -20;
     const numcards = TOTALCARDS;
-    // const angle = (totalarc / numcards) * (index + 1) - (totalarc / 2 + totalarc / numcards / 2);
-    // const margin = (w / numcards) * (index + 1);
-    // const angle = (index + 1 - numcards / 2) * (totalarc / numcards);
     const angle = (index - (numcards - 1) / 2) * (Math.PI / numcards);
-    // const margin = (index + 1 - numcards / 2) * (totalarc / numcards);
+
     const margin = (index + 1 - numcards / 2) * (maxSpacing / numcards);
 
     return { margin, angle };

@@ -4,7 +4,7 @@ import App from './App';
 import './index.css';
 import { Menu } from './components/ui/Menu';
 import { useGameStore } from './store';
-import { UserInputIndicator } from './components/ui/components/InputHelper/RotateIndicator';
+import { UserInputIndicator } from './components/ui/components/InputHelper/MobileRotateIndicator';
 import { LevelBuilder } from './components/ui/LevelBuilder';
 import { EditorMenu } from './components/ui/levelBuilder/Editor';
 import { AmmoLibrary } from './components/ui/ammoLibrary/library';

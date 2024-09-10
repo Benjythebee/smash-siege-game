@@ -3,6 +3,8 @@ import Mona from '../../libs/mona';
 import { resetUser, setUser, useUserStore } from '../userStore';
 import { motion } from 'framer-motion';
 import { isMobile } from '../../libs/music/detectors';
+import { useBreakpoints } from '../../libs/use-breakpoints';
+import { Button } from './components/button/button';
 
 const variants = {
   open: {
@@ -15,7 +17,7 @@ const variants = {
 
 export const Auth = () => {
   const { user } = useUserStore();
-
+  const { isMaxSm } = useBreakpoints();
   const [email, setEmail] = React.useState('');
   const [showOTP, setShowOTP] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -54,20 +56,22 @@ export const Auth = () => {
 
   if (user) {
     return (
-      <div className="flex gap-1 p-2 rounded-md bg-white z-10">
-        <div className="flex flex-col gap-1">
-          <span className="text-lg font-bold  leading-3"> Logged in as {user.username} </span>
+      <div className="flex justify-between items-center gap-1 p-2 rounded-md bg-white z-10 w-full">
+        {isMaxSm && <img src="/images/mona-red.webp" alt="mona" className="w-8 h-8" />}
+        <div className="flex grow flex-col gap-1">
+          <span className="text-base font-bold  leading-3"> Logged in as {user.username} </span>
           <span className="text-sm">Select an item from your assets</span>
         </div>
-        <button
-          className="py-1 px-2 border-black bg-white hover:bg-white/50 border-solid border-2 rounded-md pointer-events-auto"
+        <Button
           onClick={() => {
             resetUser();
             Mona.logout();
           }}
-        >
-          Logout
-        </button>
+          className="pointer-events-auto border-solid border-black border-2"
+          text={'Logout'}
+          theme="white"
+          size="xsmall"
+        />
       </div>
     );
   }
@@ -75,32 +79,37 @@ export const Auth = () => {
   return (
     <>
       <motion.form
-        className="flex gap-1 p-2 pointer-events-none select-none rounded-md bg-white"
+        className="flex max-sm:flex-col gap-1 p-2 pointer-events-none select-none rounded-md bg-white"
         variants={variants}
         initial={'closed'}
         animate={showLogin ? 'open' : 'closed'}
         onSubmit={onSubmitForm}
       >
         <div
-          className="flex flex-col gap-1 cursor-pointer pointer-events-auto"
+          className="flex flex-col gap-1 cursor-pointer pointer-events-auto max-sm:items-center"
           onClick={() => {
             setShowLogin(!showLogin);
           }}
         >
-          <span className="text-lg font-bold  leading-3"> Login to Mona </span>
+          {isMaxSm && <img src="/images/mona-red.webp" alt="mona" className="w-8 h-8" />}
+          <span className="text-lg font-bold  leading-3 max-sm:text-xl"> Login to MONA</span>
           <span className="text-sm"> Use your own inventory as ammo! </span>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex max-sm:flex-col max-sm:item-center gap-2">
           {!showOTP ? (
             <label htmlFor="email">
               Email:{' '}
-              {loading ? <div className="w-full">Loading...</div> : <input key="email_" name="email" className="w-full pointer-events-auto" type="email" placeholder="Email" />}
+              {loading ? (
+                <div className="w-full">Loading...</div>
+              ) : (
+                <input key="email_" name="email" className="w-full pointer-events-auto" type="email" placeholder="Email@email.com" />
+              )}
             </label>
           ) : (
             <label htmlFor="otp">
               OTP sent to your email
-              <input key="otp_" name="otp" type="text" className="w-full pointer-events-auto" placeholder="OTP" maxLength={6} />
+              <input key="otp_" name="otp" type="text" autoFocus className="w-full pointer-events-auto" placeholder="OTP" maxLength={6} />
             </label>
           )}
           <button className="px-2 bg-slate-200 rounded-md pointer-events-auto">Login</button>

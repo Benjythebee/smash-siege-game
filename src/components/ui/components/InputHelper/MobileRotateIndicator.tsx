@@ -1,10 +1,12 @@
 import { MenuStatus, useGameStore } from '../../../../store';
+import { useLibraryMobileState } from '../../ammoLibrary/library.mobile.store';
 import { ArrowKeys } from './arrowKeys';
 import { TouchXControls } from './touchControls';
 
 export const UserInputIndicator = () => {
   const menuState = useGameStore((state) => state.menuState);
-  const isVisible = menuState == MenuStatus.HIDDEN;
+  const isMobileMonaLibraryOpen = useLibraryMobileState((s) => s.isOpen);
+  const isVisible = menuState == MenuStatus.HIDDEN && !isMobileMonaLibraryOpen;
   return (
     <div className="absolute  z-[21] max-sm:w-full pointer-events-none bottom-32 left-1/2 -translate-x-1/2">
       <ArrowKeys className={`max-sm:hidden h-[120px] ${!isVisible ? 'hidden' : ''}`} />

@@ -31,12 +31,11 @@ export const LevelManager = () => {
     const components = state.components.filter((component) => component.platformIndex === index) as Breakable<LevelFeatureProp>[];
 
     return (
-      <group key={index} position={platform.position}>
-        <Platform key={platform.uuid} scale={platform.scale} />
+      <Platform key={platform.uuid || index} scale={platform.scale} position={platform.position}>
         {components.map((component) => {
           return <LevelComponent key={component.uuid} {...component} />;
         })}
-      </group>
+      </Platform>
     );
   });
 

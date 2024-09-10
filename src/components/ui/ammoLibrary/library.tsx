@@ -6,13 +6,26 @@ import { motion } from 'framer-motion';
 import { Button } from '../components/button/button';
 import { useUserStore } from '../../userStore';
 import { useSlingshot } from '../hooks/use-slingshot';
+import { useBreakpoints } from '../../../libs/use-breakpoints';
+import { AmmoLibraryMobile } from './library.mobile';
 
 export const AmmoLibrary = () => {
   const user = useUserStore((s) => s.user);
   const [show, setShow] = useState(true);
   const { loading } = useSlingshot();
   const menuStatus = useGameStore((state) => state.menuState);
+  const { isMaxSm } = useBreakpoints();
   const isHidden = menuStatus !== MenuStatus.HIDDEN;
+
+  if (isMaxSm) {
+    const mobileProps = {
+      isHidden,
+      loading,
+      user,
+      menuStatus
+    };
+    return <AmmoLibraryMobile {...mobileProps} />;
+  }
 
   return (
     <div
