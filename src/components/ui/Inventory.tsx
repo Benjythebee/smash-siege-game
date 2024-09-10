@@ -23,11 +23,8 @@ export const Inventory = () => {
 
   useEffect(() => {
     if (user) {
-      setLoading(true);
       if (!inventory.length) {
-        loadInventory().finally(() => setLoading(false));
-      } else {
-        setLoading(false);
+        loadInventory();
       }
     }
   }, [user, inventory]);
@@ -44,10 +41,10 @@ export const Inventory = () => {
     );
   }
 
-  if (inventory.length == 0) {
+  if (true) {
     return (
-      <div className="relative w-full h-full select-none pointer-events-none">
-        <div className="absolute text-white bottom-5">
+      <div className="relative w-full h-full select-none pointer-events-none  max-sm:flex max-sm:justify-center">
+        <div className="md:absolute md:bottom-5 text-white max-sm:text-black ">
           <span className="font-bold">No Assets found.</span>
         </div>
       </div>
