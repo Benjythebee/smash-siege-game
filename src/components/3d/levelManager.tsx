@@ -5,12 +5,15 @@ import { EnvironmentFeature } from './levelFeatures/environment';
 import { Breakable, LevelFeatureProp } from '../../libs/levels/types';
 import { useLevelBuilderStore } from '../ui/LevelBuilder';
 import { Fragment, useEffect, useState } from 'react';
+import { useThree } from '@react-three/fiber';
+import { Raycaster, Vector2 } from 'three';
 
 export const LevelManager = () => {
   const menuState = useGameStore((state) => state.menuState);
   const currentLevelState = useCurrentLevelState((state) => state);
   const [rerender, setRerender] = useState(0);
   const builderLevel = useLevelBuilderStore();
+
   let state = currentLevelState;
   if (menuState == MenuStatus.LEVEL_BUILDER) {
     state = builderLevel;

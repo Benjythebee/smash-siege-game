@@ -1,5 +1,5 @@
 import { Box, useTexture } from '@react-three/drei';
-import { BallCollider, ContactForcePayload, CuboidCollider, IntersectionEnterPayload, RapierCollider, RapierRigidBody, RigidBody } from '@react-three/rapier';
+import { BallCollider, ContactForcePayload, CuboidCollider, IntersectionEnterPayload, RapierCollider, RigidBody } from '@react-three/rapier';
 import { useEffect, useRef } from 'react';
 import { Breakable, defaultFeatureProps, LevelFeatureProp, FeatureType, IndestructibleType } from '../../../libs/levels/types';
 import React from 'react';
@@ -7,9 +7,11 @@ import { Mesh, Vector3 } from 'three';
 import { addExplosion, getComponentHealth, MenuStatus, updateComponentInLevel, useGameStore } from '../../../store';
 import { featureHealth, featurePhysics } from './constants';
 import { Trampoline } from './glbComponents/Trampoline';
-import { GroupProps } from '@react-three/fiber';
+import { GroupProps, ThreeEvent } from '@react-three/fiber';
 import { useSoundContext } from '../../../libs/sounds/soundContext';
 import { Boulder } from './glbComponents/Boulder';
+import { Gizmos } from './gizmos/gizmos';
+import { useEditorStore } from '../../ui/levelBuilder/Editor.store';
 
 const healthToBrokenStatus = (type: FeatureType, value: number): 'healthy' | 'good' | 'meh' | 'broken' | 'destroyed' => {
   if (featureHealth[type] == -1) return 'healthy';
@@ -68,8 +70,9 @@ const textures: {
   }
 };
 
-export const CustomComponent = React.forwardRef((props: Partial<Breakable<LevelFeatureProp>> & { visible?: boolean }, ref: any) => {
-  const { width, depth, height, type, uuid, health, ...rest } = defaultFeatureProps(props);
+export const CustomComponent = React.forwardRef((props: Partial<Breakable<LevelFeatureProp>> & { onClick: (e: ThreeEvent<MouseEvent>) => void; visible?: boolean }, ref: any) => {
+  const { onClick, ...rest } = props;
+  const { width, depth, height, type, uuid, health, ...otherProps } = defaultFeatureProps(rest);
   const { visible = true } = props;
   const texture = textures[type] as customComponentTextures;
 
@@ -89,7 +92,7 @@ export const CustomComponent = React.forwardRef((props: Partial<Breakable<LevelF
   const color = brokenStatus == 'healthy' ? undefined : brokenStatus == 'good' ? '#cf9fa2' : brokenStatus == 'meh' ? '#cc686e' : brokenStatus == 'broken' ? '#f00' : undefined;
 
   return (
-    <Box visible={visible} name={type + uuid} ref={ref} args={[width, height, depth]} receiveShadow castShadow>
+    <Box visible={visible} onClick={onClick} name={type + uuid} ref={ref} args={[width, height, depth]} receiveShadow castShadow>
       {normalTexture && <meshPhysicalMaterial map={colorTexture} normalMap={normalTexture} color={color}></meshPhysicalMaterial>}
       {!normalTexture && <meshBasicMaterial map={colorTexture} color={color}></meshBasicMaterial>}
     </Box>
@@ -105,7 +108,6 @@ export const LevelComponent = React.forwardRef((props: Partial<Breakable<LevelFe
   const boxRef = useRef<Mesh>(null);
   const boxColliderRef = useRef<RapierCollider>(null);
   const [brokenStatus, setBrokenStatus] = React.useState<'healthy' | 'good' | 'meh' | 'broken' | 'destroyed'>(healthToBrokenStatus(type, health));
-
   const physicsDisabled = menuState == MenuStatus.LEVEL_BUILDER || isPaused || type == 'trampoline';
 
   const destroy = () => {
@@ -167,13 +169,29 @@ export const LevelComponent = React.forwardRef((props: Partial<Breakable<LevelFe
     }
   }, [brokenStatus]);
 
+  const onPointerClick = (e: ThreeEvent<MouseEvent>) => {
+    if (menuState !== MenuStatus.LEVEL_BUILDER) return;
+    if (useEditorStore.getState().isDraggingGizmo) return;
+    useEditorStore.getState().setSelectedItemByUuid(uuid);
+  };
+
   const Component = React.forwardRef((_, ref) =>
     type == 'trampoline' ? (
-      <Trampoline name={type + uuid} uuid={uuid} ref={ref} scale={[width, height, depth]} />
+      <Trampoline onClick={onPointerClick} name={type + uuid} uuid={uuid} ref={ref} scale={[width, height, depth]} />
     ) : type == 'boulder' ? (
       <Boulder name={type + uuid} uuid={uuid} ref={ref} scale={[width, height, depth]} />
     ) : (
-      <CustomComponent visible={brokenStatus !== 'destroyed'} ref={ref} width={width} depth={depth} height={height} type={type} uuid={uuid} health={health} />
+      <CustomComponent
+        onClick={onPointerClick}
+        visible={brokenStatus !== 'destroyed'}
+        ref={ref}
+        width={width}
+        depth={depth}
+        height={height}
+        type={type}
+        uuid={uuid}
+        health={health}
+      />
     )
   );
   Component.displayName = 'Component';
@@ -183,31 +201,34 @@ export const LevelComponent = React.forwardRef((props: Partial<Breakable<LevelFe
   const physics = featurePhysics[type];
 
   return (
-    <RigidBody
-      ref={ref}
-      key={uuid}
-      colliders={false}
-      type={brokenStatus == 'destroyed' || physicsDisabled ? 'fixed' : 'dynamic'}
-      onIntersectionEnter={onOceanIntersection}
-      canSleep={false}
-      onContactForce={onContactForce}
-      scale={scale}
-      {...rest}
-    >
-      {type == 'boulder' ? (
-        <BallCollider restitution={physics.restitution} mass={physics.mass} friction={physics.friction} ref={boxColliderRef} name={type} args={[width / 2]}></BallCollider>
-      ) : (
-        <CuboidCollider
-          restitution={physics.restitution}
-          mass={physics.mass}
-          friction={physics.friction}
-          ref={boxColliderRef}
-          name={type}
-          args={[width / 2, colliderHalfHeight, depth / 2]}
-        />
-      )}
+    <Gizmos key={uuid + 'gizmo'} id={uuid}>
+      <RigidBody
+        userData={{ uuid, platformIndex: props.platformIndex }}
+        ref={ref}
+        key={uuid}
+        colliders={false}
+        type={brokenStatus == 'destroyed' || physicsDisabled ? 'fixed' : 'dynamic'}
+        onIntersectionEnter={onOceanIntersection}
+        canSleep={false}
+        onContactForce={onContactForce}
+        scale={scale}
+        {...rest}
+      >
+        {type == 'boulder' ? (
+          <BallCollider restitution={physics.restitution} mass={physics.mass} friction={physics.friction} ref={boxColliderRef} name={type} args={[width / 2]}></BallCollider>
+        ) : (
+          <CuboidCollider
+            restitution={physics.restitution}
+            mass={physics.mass}
+            friction={physics.friction}
+            ref={boxColliderRef}
+            name={type}
+            args={[width / 2, colliderHalfHeight, depth / 2]}
+          />
+        )}
 
-      <Component ref={boxRef} />
-    </RigidBody>
+        <Component ref={boxRef} />
+      </RigidBody>
+    </Gizmos>
   );
 });

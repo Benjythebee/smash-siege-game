@@ -99,7 +99,7 @@ export const EditorMenu = () => {
           <div
             className="font-bold text-lg rounded-md border-black border-2 border-solid cursor-pointer hover:bg-black hover:text-white"
             onClick={() => {
-              useEditorStore.setState({ selectedPlatformOrEnvironment: null });
+              useEditorStore.setState({ focused: null, selectedItem: null, selectedPlatformOrEnvironment: null });
             }}
           >
             Close

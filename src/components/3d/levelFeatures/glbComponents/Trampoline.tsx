@@ -18,14 +18,15 @@ type GLTFResult = GLTF & {
 };
 
 export const Trampoline = React.forwardRef((props: JSX.IntrinsicElements['group'], ref: any) => {
+  const { onClick, ...rest } = props;
   const { nodes, materials } = useGLTF('./models/Trampoline.glb') as GLTFResult;
 
   const pos = (props.position as [number, number, number]) || [0, 0, 0];
   pos[1] -= 0.25;
 
   return (
-    <group {...props} position={pos} ref={ref} dispose={null}>
-      <mesh geometry={nodes.Trampoline_Mesh.geometry} material={materials.Trampoline_Mat} />
+    <group {...rest} position={pos} ref={ref} dispose={null}>
+      <mesh onClick={onClick} geometry={nodes.Trampoline_Mesh.geometry} material={materials.Trampoline_Mat} />
     </group>
   );
 });
