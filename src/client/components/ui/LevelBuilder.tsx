@@ -78,15 +78,15 @@ export const LevelBuilder = () => {
     switch (type) {
       case 'environment':
         const newEnvItem = defaultEnvironmentProps({
-          position: [0, 1, -20]
+          position: [0, 1, -20] // default position
         });
         addEnvironment(newEnvItem);
         useEditorStore.setState({ selectedPlatformOrEnvironment: { type: 'environment', data: newEnvItem }, selectedItem: null });
         break;
       case 'platform':
         const newPlat = defaultPlatformProps({
-          position: [0, 0, -20],
-          scale: [5, 1, 5]
+          position: [0, 0, -20], // default position
+          scale: [5, 1, 5] // default scale
         });
         addPlatform(newPlat);
         useEditorStore.setState({ selectedPlatformOrEnvironment: { type: 'platforms', data: newPlat }, selectedItem: null });
