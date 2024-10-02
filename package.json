@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "dev": "npm run clean && nodemon -w src/server -x tsx src/server",
-    "start": "cross-env NODE_ENV=production tsx src/server/main.ts",
+    "start": "cross-env NODE_ENV=production tsx src/server/index.ts",
     "preview": "cross-env NODE_ENV=production vite preview",
     "build": "vite build"
   },

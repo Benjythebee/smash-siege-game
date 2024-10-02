@@ -3,14 +3,15 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import ViteExpress from 'vite-express';
 
-import { Express } from 'express-serve-static-core';
 import { ApiMiddleware } from './api/router';
+import env from './lib/env';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const { PORT = 3001 } = process.env;
+const { PORT = 3001, NODE_ENV } = env;
 
 const app = express();
+ViteExpress.config({ mode: NODE_ENV == 'production' ? 'production' : 'development' });
 
 // Middleware that parses json and looks at requests where the Content-Type header matches the type option.
 app.use(express.json());

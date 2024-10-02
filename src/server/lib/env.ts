@@ -14,10 +14,6 @@ export const env = envsafe({
     allowEmpty: false,
     desc: 'The database connection string postgres'
   }),
-  SERVER_HOST: str({
-    devDefault: 'localhost',
-    desc: 'The host the app is running on'
-  }),
   PORT: port({
     devDefault: 3000,
     default: 8080,
