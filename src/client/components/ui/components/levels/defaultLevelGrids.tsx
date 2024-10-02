@@ -19,7 +19,7 @@ export const DefaultLevels = (props: DefaultLevelsProps) => {
     <div className="pt-6 grid grid-cols-4 max-sm:grid-cols-2 gap-2 max-sm:gap-2">
       {defaultLevels.map((level, index) => {
         const score = scoreByLevel[index];
-        const hasBeenAttempted = score !== undefined;
+        const hasBeenAttempted = !!score;
         const canAttempt = index === 0 || scoreByLevel[index - 1] !== undefined;
         const grade = hasBeenAttempted ? scoreToGrade(score.score, score.ammoUsed, index) : undefined;
         const color = hasBeenAttempted ? gradeToColor(grade!) : 'bg-gray-600';
