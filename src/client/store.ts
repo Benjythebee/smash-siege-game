@@ -14,6 +14,7 @@ import { playSoundProgrammatically } from './libs/sounds/soundContext.js';
 import { slingShotCenterPositionVector } from './components/3d/Slingshot.js';
 import React from 'react';
 import { LevelData, LevelFeatureProp } from '../common/types.js';
+import { CustomLevelStore } from './libs/customLevels/customLevel.context.js';
 
 export enum MenuStatus {
   MAIN_MENU,
@@ -49,7 +50,7 @@ const generateAmmo = (num: number): ammoLoadoutType[] => {
 };
 
 export const useGameStore = create<{
-  level: number;
+  level: number | 'custom';
   scoreByLevel: { ammoUsed: number; score: number }[];
   startGame: (level: number) => void;
   endGame: () => void;
@@ -72,8 +73,11 @@ export const useGameStore = create<{
       score: 0,
       incrementScore: (score: number) => set((state) => ({ score: state.score + score })),
       setScoreByLevel: (score: number, ammoUsed: number) => {
+        const level = get().level;
+        if (level == 'custom') return; // no score for custom level for now
+
         const arr = get().scoreByLevel;
-        arr[get().level] = { score, ammoUsed };
+        arr[level] = { score, ammoUsed };
         set({ scoreByLevel: arr });
       }
     }),
@@ -170,11 +174,15 @@ useSlingShotStore.subscribe((state) => {
   if (gameState.menuState !== MenuStatus.HIDDEN) return;
   // Show score if we're out of ammo
   if (state.isOutOfAmmo() && !timeouts.onOutOfAmmoTimeout) {
-    const lastLevelScore = gameState.scoreByLevel[gameState.level]?.score || 0;
-    const currentSCore = gameState.score;
-    if (lastLevelScore < currentSCore) {
-      gameState.setScoreByLevel(gameState.score, useSlingShotStore.getState().currentAmmoIndex + 1);
+    if (gameState.level != 'custom') {
+      // Set score by level on default levels only
+      const lastLevelScore = gameState.scoreByLevel[gameState.level]?.score || 0;
+      const currentSCore = gameState.score;
+      if (lastLevelScore < currentSCore) {
+        gameState.setScoreByLevel(gameState.score, useSlingShotStore.getState().currentAmmoIndex + 1);
+      }
     }
+
     timeouts.onOutOfAmmoTimeout = setTimeout(() => {
       console.log('out of ammo');
       useGameStore.setState({ menuState: MenuStatus.SCORE });
@@ -183,12 +191,25 @@ useSlingShotStore.subscribe((state) => {
   }
 });
 // clear all timeouts on level change
-let currentLevel = 0;
+let currentLevel: number | 'custom' = 0;
 useGameStore.subscribe((state) => {
   if (state.level !== currentLevel) {
     // clear all timeouts
     clearTimeouts();
     currentLevel = state.level;
+  }
+});
+
+/**
+ * This is to automatically clear the custom level when the user leaves the custom level
+ */
+let wasCustomLevel = false;
+useGameStore.subscribe((state) => {
+  if (wasCustomLevel && state.level !== 'custom') {
+    // clear store
+    CustomLevelStore.getState().setLoadedCustomLevel(null, false);
+  } else if (state.level === 'custom') {
+    wasCustomLevel = true;
   }
 });
 
@@ -218,15 +239,17 @@ export const endGame = () => {
   });
 };
 
-export const resetLevel = (number?: number) => {
-  const level = number ?? useGameStore.getState().level;
-
+export const resetLevel = (levelId?: number | 'custom') => {
+  let level = levelId ?? useGameStore.getState().level;
+  if (!levelsData[level]) {
+    level = 0;
+  }
   onReloadLevel.notifyObservers();
   useGameStore.setState({
     score: 0,
     menuState: MenuStatus.HIDDEN,
     isPaused: false,
-    ...(number ? { level: number } : {})
+    ...(levelId ? { level: levelId } : {})
   });
   loadLevel(level);
   useSlingShotStore.setState({
@@ -234,7 +257,7 @@ export const resetLevel = (number?: number) => {
     ammoLoaded: true,
     importedAssets: {},
     explosions: [],
-    ammoLoadout: generateAmmo(levelsData[level].totalAmmo)
+    ammoLoadout: generateAmmo(levelsData[level]!.totalAmmo)
   });
 
   clearTimeouts();
@@ -302,10 +325,11 @@ function setComponentsBreakableData(components: LevelFeatureProp[]) {
   return components.map((component) => ({ ...component, health: featureHealth[component.type!], uuid: uuidv4() }));
 }
 
-export const loadLevel = (level: number) => {
+export const loadLevel = (level: number | 'custom') => {
+  if (!levelsData[level]) return;
   useCurrentLevelState.setState(() => {
     const isBuilderLevel = useGameStore.getState().menuState == MenuStatus.LEVEL_BUILDER;
-    const levelData = isBuilderLevel ? useLevelBuilderStore.getState() : structuredClone(levelsData[level]);
+    const levelData = isBuilderLevel ? useLevelBuilderStore.getState() : structuredClone(levelsData[level]!);
     const cloned = structuredClone(levelData);
     return {
       ...cloned,

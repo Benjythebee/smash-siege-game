@@ -3,7 +3,8 @@ import { levelsData } from './levels.js';
 
 export const computeScore = () => {};
 
-export const scoreToGrade = (score: number, ammoUsed: number, level: number) => {
+export const scoreToGrade = (score: number, ammoUsed: number, level: number | 'custom') => {
+  if (!levelsData[level]) return 'F';
   const maxScoreForLevel = levelsData[level].components.reduce((acc, cur) => {
     if (featureHealth[cur.type!] == -1) {
       return acc;

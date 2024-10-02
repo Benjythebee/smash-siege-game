@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { endGame, MenuStatus, resetLevel, useGameStore, useSlingShotStore } from '../../../store.js';
+import { endGame, MenuStatus, resetLevel, useCurrentLevelState, useGameStore, useSlingShotStore } from '../../../store.js';
 
 import { AnimatedNumber } from './AnimatedNumber.js';
 import { levelsData } from '../../../libs/levels.js';
@@ -10,14 +10,16 @@ export const LevelScore = () => {
   const score = useGameStore((state) => state.score);
   const level = useGameStore((state) => state.level);
   const { currentAmmoIndex } = useSlingShotStore();
+  const name = useCurrentLevelState((s) => s.name);
 
   const [showNext, setShowNext] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
   const [showGrade, setShowGrade] = useState(false);
 
-  const currentLevel = levelsData[level].name;
+  const currentLevel = name;
 
-  const isLastLevel = level === levelsData.length - 1;
+  // If it's a custom level, we don't have the next level
+  const isLastLevel = level == 'custom' ? true : level === levelsData.length - 1;
   const ammoUsed = currentAmmoIndex + 1;
   const retryLevel = () => {
     resetLevel();
@@ -27,7 +29,7 @@ export const LevelScore = () => {
     if (isLastLevel) {
       return endGame();
     }
-    const nextLevel = level + 1;
+    const nextLevel = (level as number) + 1;
     resetLevel(nextLevel);
   };
   const grade = scoreToGrade(score, ammoUsed, level);

@@ -55,10 +55,10 @@ export const ApiMiddleware = async (app: express.Express) => {
     try {
       const queryResponse = await pg.query<LevelType>(
         `
-        INSERT INTO levels (name, description, author, total_ammo, content)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO levels (name, description, author, total_ammo, content, image_url)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *`,
-        [params.name, params.description, params.author, params.total_ammo, JSON.stringify(params.content)]
+        [params.name, params.description, params.author, params.total_ammo, JSON.stringify(params.content), params.image_url || null]
       );
 
       const levels = queryResponse?.rows || [];

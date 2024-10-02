@@ -62,3 +62,11 @@ SELECT apply_migration('add_level_table', $$
 CREATE INDEX lower_case_username ON levels ((lower(author)));
 CREATE INDEX lower_case_name ON levels ((lower(name)))
 $$);
+
+
+SELECT apply_migration('add_image_url_column', $$
+
+  ALTER TABLE levels
+  ADD COLUMN image_url TEXT NULL
+
+$$);

@@ -1,18 +1,23 @@
-import { LevelData } from '../../../../../../../common/types.js';
+import { LevelData } from '../../../../../common/types.js';
+import { LevelDataDictionary } from '../../../../libs/levels.js';
 import { gradeToColor, scoreToGrade } from '../../../../libs/score.js';
 
 interface DefaultLevelsProps {
   scoreByLevel: { ammoUsed: number; score: number }[];
-  levelsData: LevelData[];
+  levelsData: LevelDataDictionary;
   onClickLevel: (index: number) => void;
 }
 
 export const DefaultLevels = (props: DefaultLevelsProps) => {
   const { levelsData, scoreByLevel, onClickLevel } = props;
 
+  const defaultLevels = Object.entries(levelsData)
+    .filter(([key]) => !isNaN(parseInt(key)))
+    .map(([, value]) => value) as LevelData[];
+
   return (
     <div className="pt-6 grid grid-cols-4 max-sm:grid-cols-2 gap-2 max-sm:gap-2">
-      {levelsData.map((level, index) => {
+      {defaultLevels.map((level, index) => {
         const score = scoreByLevel[index];
         const hasBeenAttempted = score !== undefined;
         const canAttempt = index === 0 || scoreByLevel[index - 1] !== undefined;

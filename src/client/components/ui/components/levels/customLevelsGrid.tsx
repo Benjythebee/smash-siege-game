@@ -1,11 +1,10 @@
 import { create } from 'zustand';
 import { CustomLevelsAPI } from '../../../../libs/customLevels/editorApi.js';
-import { gradeToColor, scoreToGrade } from '../../../../libs/score.js';
 import { useEffect } from 'react';
 import { LoadingIcon } from '../../icons/loader.js';
 import { LevelType } from '../../../../../common/types.js';
 import { convertLevelTypeToLevelData } from '../../../../../common/convert.js';
-import { useCustomLevelProvider } from '../../../../libs/customLevels/customLevel.context.js';
+import { useCustomLevelStore } from '../../../../libs/customLevels/customLevel.context.js';
 
 const levelsStore = create<{
   levels: LevelType[];
@@ -68,7 +67,7 @@ const useCustomLevels = () => {
 export const CustomLevels = (props: {}) => {
   const { levels, page, loading } = useCustomLevels();
   const { setPage } = useLevelFetchActions();
-  const { setLoadedLevel } = useCustomLevelProvider();
+  const { setLoadedCustomLevel } = useCustomLevelStore();
 
   const nextPage = () => {
     setPage(page + 1);
@@ -89,21 +88,20 @@ export const CustomLevels = (props: {}) => {
         {levels.length === 0 && !loading && <div className="col-span-3 max-sm:col-span-2 text-white text-center text-2xl">No levels found</div>}
         {levels.map((level) => {
           const levelName = level.name;
-          const converted = convertLevelTypeToLevelData(level);
           const levelUploaded = new Date(level.created_at);
           return (
             <div
               key={levelName}
               onClick={() => {
-                setLoadedLevel(converted);
+                setLoadedCustomLevel(level);
               }}
-              className={`rounded-md py-2 px-4 max-sm:px-2 text-white flex flex-col gap-1 text-center font-bold  cursor-pointer`}
+              className={`rounded-md py-2 px-4 max-sm:px-2 text-white flex flex-col gap-1 text-center font-bold  cursor-pointer round-md hover:bg-white/10`}
             >
               <div className="max-sm:text-sm text-lg uppercase text-ellipsis ">{level.name}</div>
               <div className="max-sm:text-xxs text-xs flex gap-2">
                 <strong>Author: </strong> {level.author}
               </div>
-              <div className="max-sm:text-xxs text-xs">
+              <div className="max-sm:text-xxs text-xs flex gap-2">
                 <strong>Uploaded:</strong> {levelUploaded.getMonth() + 1 + '-' + levelUploaded.getFullYear()}
               </div>
             </div>

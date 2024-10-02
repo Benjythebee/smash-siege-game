@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { create } from 'zustand';
 import { levelsData } from '../../libs/levels.js';
 import { clearLevel, endGame, MenuStatus, useGameStore } from '../../store.js';
@@ -8,7 +9,9 @@ import React from 'react';
 import { Button } from './components/button/button.js';
 import { EnvironmentFeatureProp, LevelData, LevelPlatformProp } from '../../../common/types.js';
 import { AuthInEditor } from './levelBuilder/auth-in-editor.js';
-import { useCustomLevelProvider } from '../../libs/customLevels/customLevel.context.js';
+import { useCustomLevelStore } from '../../libs/customLevels/customLevel.context.js';
+import { ScreenshotManager } from '../../libs/screenshotManager/screenshotManager.js';
+import { useSceneOutsideR3F } from '../../scene.store.js';
 
 const emptyLevel = {
   name: 'My level',
@@ -49,10 +52,11 @@ export const LevelBuilder = () => {
   const { name, totalAmmo, environment, platforms, components } = useLevelBuilderStore((state) => state);
   const { menuState } = useGameStore();
 
-  const { uploadLevelToLibrary, uploadError, uploadSuccess } = useCustomLevelProvider();
-
+  const { uploadLevelToLibrary, uploadError, uploadSuccess } = useCustomLevelStore();
+  const [uploading, setUploading] = React.useState(false);
   const [selectedImportLevel, setSelectedImportLevel] = React.useState<number>(0);
   const isHidden = menuState == MenuStatus.LEVEL_BUILDER;
+  const { scene, camera } = useSceneOutsideR3F();
   useEffect(() => {
     if (menuState == MenuStatus.LEVEL_BUILDER) {
       clearLevel();
@@ -65,16 +69,25 @@ export const LevelBuilder = () => {
     endGame();
   };
 
+  const defaultLevels = Object.entries(levelsData)
+    .filter(([key]) => !isNaN(parseInt(key)))
+    .map(([, value]) => value) as LevelData[];
+
   const add = (type: 'environment' | 'platform') => {
     // create new object
     switch (type) {
       case 'environment':
-        const newEnvItem = defaultEnvironmentProps({});
+        const newEnvItem = defaultEnvironmentProps({
+          position: [0, 1, -20]
+        });
         addEnvironment(newEnvItem);
         useEditorStore.setState({ selectedPlatformOrEnvironment: { type: 'environment', data: newEnvItem }, selectedItem: null });
         break;
       case 'platform':
-        const newPlat = defaultPlatformProps({});
+        const newPlat = defaultPlatformProps({
+          position: [0, 0, -20],
+          scale: [5, 1, 5]
+        });
         addPlatform(newPlat);
         useEditorStore.setState({ selectedPlatformOrEnvironment: { type: 'platforms', data: newPlat }, selectedItem: null });
         break;
@@ -105,6 +118,25 @@ export const LevelBuilder = () => {
     }
   };
 
+  const takeScreenShot = (purpose: 'encoded' | 'download') => {
+    if (!scene) {
+      console.warn('No scene found');
+      return;
+    }
+    if (!camera) {
+      console.warn('No camera found');
+      return;
+    }
+    const c = new ScreenshotManager(scene);
+    c.setCamera(camera);
+    if (purpose == 'encoded') {
+      return c.getImageData(256, 256);
+    } else {
+      c.saveScreenshot('my level', 512, 512);
+      return null;
+    }
+  };
+
   const importLevel = () => {
     const levelData = structuredClone(levelsData[selectedImportLevel]);
     // add default values to properties
@@ -115,7 +147,7 @@ export const LevelBuilder = () => {
     useLevelBuilderStore.setState(levelData);
   };
 
-  const exportLevel = (option: 'library' | 'clipboard') => {
+  const exportLevel = async (option: 'library' | 'clipboard') => {
     const object = structuredClone(useLevelBuilderStore.getState());
     // cleanup object
     // remove uuid
@@ -138,7 +170,15 @@ export const LevelBuilder = () => {
       navigator.clipboard.writeText(JSON.stringify(object));
       return;
     } else {
-      uploadLevelToLibrary(object);
+      // Take a screenshot
+
+      setUploading(true);
+      const imgData = takeScreenShot('encoded');
+      if (imgData) {
+        object.image_url = imgData;
+      }
+      await uploadLevelToLibrary(object);
+      setUploading(false);
     }
   };
 
@@ -214,7 +254,7 @@ export const LevelBuilder = () => {
               <label htmlFor="import">Import</label>
               <div className="flex gap-2">
                 <select className="text-black" onChange={(e) => setSelectedImportLevel(Number(e.currentTarget.value))} value={selectedImportLevel} name="import" id="import">
-                  {levelsData.map((level, index) => (
+                  {defaultLevels.map((level, index) => (
                     <option key={level.name} value={index}>
                       {level.name}
                     </option>
@@ -227,11 +267,11 @@ export const LevelBuilder = () => {
               <label htmlFor="import">Export</label>
               <div className="flex gap-2 ">
                 <button
-                  disabled={!platforms.length || !components.length}
+                  disabled={!platforms.length || !components.length || uploading}
                   className="px-2 disabled:bg-gray-500 rounded-md bg-green-800 text-white border-solid border-2 cursor-pointer"
                   onClick={() => exportLevel('library')}
                 >
-                  Save level to library
+                  {uploading ? `Uploading...` : `Save level to library`}
                 </button>
                 <button
                   disabled={!platforms.length || !components.length}

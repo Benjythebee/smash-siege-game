@@ -1,38 +1,48 @@
-import { createContext, PropsWithChildren, useContext, useState } from 'react';
+import { PropsWithChildren, useRef } from 'react';
 import { ExpectedLevelDataFromClient, LevelData, LevelType } from '../../../common/types';
 import { useUserStore } from '../../components/userStore';
 import { CustomLevelsAPI } from './editorApi';
+import { createStore, StoreApi, useStore } from 'zustand';
+import React from 'react';
+import { levelsData } from '../levels';
+import { resetLevel } from '../../store';
+import { convertLevelTypeToLevelData } from '../../../common/convert';
 
-const CustomLevelContext = createContext<{
-  loadedLevel: LevelData | null;
-  setLoadedLevel: (level: LevelData) => void;
+type CustomLevelContextType = {
+  loadedCustomLevel: LevelType | null;
+  setLoadedCustomLevel: (level: LevelType | null, shouldReset?: boolean) => void;
   uploadError: string | null;
   uploadSuccess: boolean;
-  uploadLevelToLibrary: (cleanedLevel: LevelData) => void;
-}>({
-  loadedLevel: null,
+  uploadLevelToLibrary: (cleanedLevel: LevelData) => Promise<void>;
+};
+
+export const CustomLevelStore = createStore<CustomLevelContextType>()((set, get) => ({
+  loadedCustomLevel: null,
   uploadError: null,
   uploadSuccess: false,
-  setLoadedLevel: () => {},
-  uploadLevelToLibrary: () => {}
-});
-
-export const CustomLevelManagerProvider = ({ children }: PropsWithChildren) => {
-  const [loadedLevel, setLoadedLevel] = useState<LevelData | null>(null);
-
-  // For uploading a level
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [uploadSuccess, setuploadSuccess] = useState<boolean>(false);
-
-  // uploading a level
-
-  const uploadLevelToLibrary = async (cleanedLevel: LevelData) => {
-    console.log(cleanedLevel);
+  setLoadedCustomLevel: (l: LevelType | null, shouldReset = true) => {
+    if (l) {
+      const converted = convertLevelTypeToLevelData(l);
+      /**
+       * Note: this is only time we ever edit "levelsData";
+       */
+      levelsData.custom = converted;
+      set({ loadedCustomLevel: l });
+      resetLevel('custom');
+    } else {
+      set({ loadedCustomLevel: null });
+      levelsData.custom = null;
+      if (shouldReset) {
+        resetLevel(0);
+      }
+    }
+  },
+  uploadLevelToLibrary: async (cleanedLevel: LevelData) => {
     const user = useUserStore.getState();
-    setUploadError(null);
-    setuploadSuccess(false);
+    set({ uploadError: null, uploadSuccess: false });
+
     if (!user.user?.username) {
-      setUploadError('Please login to upload this level');
+      set({ uploadError: 'Please login to upload this level', uploadSuccess: false });
       return;
     }
     // Upload to Library
@@ -41,6 +51,7 @@ export const CustomLevelManagerProvider = ({ children }: PropsWithChildren) => {
       name: cleanedLevel.name,
       description: 'Custom level',
       author: user.user?.username || 'Anonymous',
+      image_url: cleanedLevel.image_url || '',
       total_ammo: cleanedLevel.totalAmmo,
       content: {
         platforms: cleanedLevel.platforms,
@@ -50,31 +61,32 @@ export const CustomLevelManagerProvider = ({ children }: PropsWithChildren) => {
     };
 
     const api = new CustomLevelsAPI();
-    console.log(cleanedLevel);
-    console.log(level);
+
     const response = await api.addLevel(level);
     if ('error' in response) {
-      setUploadError(response.error);
+      set({ uploadError: response.error, uploadSuccess: false });
     } else {
-      setuploadSuccess(true);
+      set({ uploadError: '', uploadSuccess: true });
     }
-  };
+  }
+}));
 
-  return (
-    <CustomLevelContext.Provider
-      value={{
-        uploadSuccess: uploadSuccess,
-        loadedLevel: loadedLevel,
-        setLoadedLevel: setLoadedLevel,
-        uploadError: uploadError,
-        uploadLevelToLibrary
-      }}
-    >
-      {children}
-    </CustomLevelContext.Provider>
-  );
+const CustomLevelManagerContext = React.createContext<StoreApi<CustomLevelContextType> | null>(null);
+
+export const CustomLevelManagerProvider = ({ children }: PropsWithChildren) => {
+  const ref = useRef<StoreApi<CustomLevelContextType> | null>(null);
+
+  if (!ref.current) {
+    ref.current = CustomLevelStore;
+  }
+
+  return <CustomLevelManagerContext.Provider value={ref.current}>{children}</CustomLevelManagerContext.Provider>;
 };
 
-export const useCustomLevelProvider = () => {
-  return useContext(CustomLevelContext);
+export const useCustomLevelStore = () => {
+  return useStore(CustomLevelStore);
+};
+
+export const useCustomLevelStoreWithSelector = <T,>(selector: (store: CustomLevelContextType) => T): T => {
+  return useStore(CustomLevelStore, selector);
 };

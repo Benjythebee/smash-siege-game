@@ -24,7 +24,7 @@ export const GridLevels = () => {
       <LevelTabs tab={tab} setTab={setTab} />
       <div className="scrollArea overflow-y-auto overflow-x-hidden min-h-[60vh] max-md:min-h-[80vh] max-h-80">
         {tab === 'default' && <DefaultLevels scoreByLevel={scoreByLevel} levelsData={levelsData} onClickLevel={onClickLevel} />}
-        {tab === 'custom' && <CustomLevels onClickLevel={onClickLevel} />}
+        {tab === 'custom' && <CustomLevels />}
       </div>
     </div>
   );

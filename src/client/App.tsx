@@ -1,12 +1,15 @@
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { Experience } from './components/Experience.js';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Physics } from '@react-three/rapier';
+import { onSceneReady } from './observables.js';
+import { useSceneOutsideR3F } from './scene.store.js';
 const physicsDebug = import.meta.env.VITE_PHYSICS_DEBUG == 'true';
 
 function App() {
   return (
     <Canvas shadows camera={{ position: [0, 10, 15], fov: 69 }}>
+      <OnSceneReady />
       <color attach="background" args={['#dbecfb']} />
       <Suspense fallback={null}>
         <Physics debug={physicsDebug}>
@@ -18,3 +21,21 @@ function App() {
 }
 
 export default App;
+
+const OnSceneReady = () => {
+  const { scene, camera } = useThree((s) => ({ scene: s.scene, camera: s.camera }));
+
+  useEffect(() => {
+    if (scene) {
+      useSceneOutsideR3F.setState({ scene });
+    }
+  }, [scene]);
+
+  useEffect(() => {
+    if (camera) {
+      useSceneOutsideR3F.setState({ camera });
+    }
+  }, [camera]);
+
+  return null;
+};

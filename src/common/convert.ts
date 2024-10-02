@@ -7,7 +7,7 @@ export const convertLevelTypeToLevelData = (level: LevelType): LevelData => {
   const { id, content, ...rest } = level;
   return {
     ...rest,
-    totalAmmo: level.total_ammo,
+    totalAmmo: isNaN(Number(level.total_ammo)) ? 0 : Number(level.total_ammo),
     name: level.name,
     environment: content.environment,
     platforms: content.platforms,

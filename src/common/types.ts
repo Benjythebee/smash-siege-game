@@ -49,6 +49,7 @@ export type LevelFeatureProp = {
 export type LevelData = {
   name: string;
   description?: string;
+  image_url?: string;
   totalAmmo: number;
   environment?: Partial<EnvironmentFeatureProp>[];
   platforms: Partial<LevelPlatformProp>[];
@@ -65,6 +66,7 @@ export type LevelType = {
   id: number;
   name: string;
   description?: string;
+  image_url?: string;
   created_at: Date;
   updated_at: Date;
   author: string;

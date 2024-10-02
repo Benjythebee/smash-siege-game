@@ -24,6 +24,23 @@ export const validateLevelData = (levelData: ExpectedLevelDataFromClient) => {
     return 'Level description is too short';
   }
 
+  // Check images
+  if (levelData.image_url && !levelData.image_url.match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/g)) {
+    return 'Invalid image type';
+  }
+
+  if (levelData.image_url) {
+    // Check image size
+    // @see https://stackoverflow.com/a/49750491/9970490
+    let stringLength = levelData.image_url.length - 'data:image/png;base64,'.length;
+
+    let sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
+    let sizeInKb = sizeInBytes / 1000;
+    if (sizeInKb > 100) {
+      return 'Image size is too large';
+    }
+  }
+
   // Check if the level content is valid
   if (Object.keys(levelData.content).length === 0) {
     return 'Level content is empty';
