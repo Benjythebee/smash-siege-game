@@ -26,3 +26,28 @@ When adding new GLTF items, run `npx gltfjsx [file path] -t` and move the genera
 
 Build command `yarn build` or `yarn install --production=false && yarn build` depending on your environment;  
 Run command: `yarn start`
+
+
+
+## Some TODOS
+Some todos I can think of right now, more will probably be added in the future
+
+**Slingshot mechanics**
+- [ ] Find out what Mona provides in terms of 3d asset (extensions like glb, fbx etc...)
+
+**Levels:**
+- [ ] Add ability to search custom levels
+- [ ] Add image for each "default" level
+
+**Level Editor:**
+- [x] Ability to upload level and play it
+- [ ] Should be able to test the level before uploading it.
+- [ ] Improve Design and CSS
+- [ ] Allow loading previously uploaded levels to edit them
+- [ ] add gizmos to platforms and environment objects
+- [ ] (MAYBE) Add ability to have custom GLBs as element in the level ?
+
+**Server:**
+- [ ] API to allow editing levels
+- [ ] API to remove levels ?
+- [ ] Scores per custom levels ?
