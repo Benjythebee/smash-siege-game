@@ -89,6 +89,9 @@ export const useGameStore = create<{
   )
 );
 
+/**
+ * Store dedicated to ammo management  and other slingshot mechanics
+ */
 export const useSlingShotStore = create<{
   importedAssets: { [index: string]: AnimationResponse };
   explosions: ExplosionType[];
@@ -125,6 +128,9 @@ export const useSlingShotStore = create<{
   currentAmmoRef: () => get().ammoLoadout[get().currentAmmoIndex]?.ref.current
 }));
 
+/**
+ * Store dedicated to the state of the current level, it is of the type LevelData
+ */
 export const useCurrentLevelState = create<LevelData>((set, get) => {
   const clone = structuredClone(levelsData[0]);
   return {
@@ -134,6 +140,9 @@ export const useCurrentLevelState = create<LevelData>((set, get) => {
   };
 });
 
+/**
+ * This is to automatically show the menu when all components are broken or when we run out of ammo
+ */
 const timeouts: {
   onAllBrokenTimeout: NodeJS.Timeout | null;
   onOutOfAmmoTimeout: NodeJS.Timeout | null;
@@ -148,6 +157,9 @@ const clearTimeouts = () => {
   timeouts.onOutOfAmmoTimeout = null;
 };
 
+/**
+ * Subscribe to level state changes to check if all components are broken
+ */
 useCurrentLevelState.subscribe((state) => {
   if (!state.components || state.components.length == 0) {
     return;
@@ -169,6 +181,9 @@ useCurrentLevelState.subscribe((state) => {
   }
 });
 
+/**
+ * Subscribe to ammo state changes to check if we're out of ammo
+ */
 useSlingShotStore.subscribe((state) => {
   const gameState = useGameStore.getState();
   if (gameState.menuState !== MenuStatus.HIDDEN) return;
@@ -213,14 +228,9 @@ useGameStore.subscribe((state) => {
   }
 });
 
-export const pauseGame = () => {
-  useGameStore.setState({ isPaused: true });
-};
-
-export const resumeGame = () => {
-  useGameStore.setState({ isPaused: false });
-};
-
+/**
+ * End the game; (reset the level, show the main menu)
+ */
 export const endGame = () => {
   onReloadLevel.notifyObservers();
   useGameStore.setState({
@@ -239,6 +249,9 @@ export const endGame = () => {
   });
 };
 
+/**
+ * Call to clear the scene and reset a level to its initial state
+ */
 export const resetLevel = (levelId?: number | 'custom') => {
   let level = levelId ?? useGameStore.getState().level;
   if (!levelsData[level]) {
@@ -263,6 +276,9 @@ export const resetLevel = (levelId?: number | 'custom') => {
   clearTimeouts();
 };
 
+/**
+ * Clear the current level state without changing the game state (score, menu etc)
+ */
 export const clearLevel = () => {
   useCurrentLevelState.setState({
     name: '',
@@ -277,6 +293,9 @@ export const clearLevel = () => {
   clearTimeouts();
 };
 
+/**
+ * Add an explosion to the scene
+ */
 export const addExplosion = (explosion: Omit<ExplosionType, 'guid'>) => {
   const explosionSoundNames = ['poof_lower', 'poof_original'] as const;
   const randomExplosionSound = explosionSoundNames[Math.floor(Math.random() * explosionSoundNames.length)];
@@ -286,6 +305,9 @@ export const addExplosion = (explosion: Omit<ExplosionType, 'guid'>) => {
   });
 };
 
+/**
+ * Move the current ammo to a new position
+ */
 export const moveCurrentAmmo = (position: Vector3) => {
   useSlingShotStore.setState((state) => ({
     ammoLoadout: state.ammoLoadout.map((ammo, index) => {
@@ -299,7 +321,9 @@ export const moveCurrentAmmo = (position: Vector3) => {
     })
   }));
 };
-
+/**
+ * Mark the specific ammo (by index) as released
+ */
 export const markAmmoAsReleased = (ammoIndex: number) => {
   useSlingShotStore.setState((state) => ({
     ammoLoadout: state.ammoLoadout.map((ammo, index) => {
@@ -325,6 +349,9 @@ function setComponentsBreakableData(components: LevelFeatureProp[]) {
   return components.map((component) => ({ ...component, health: featureHealth[component.type!], uuid: uuidv4() }));
 }
 
+/**
+ * Load a level by its index (or custom level);
+ */
 export const loadLevel = (level: number | 'custom') => {
   if (!levelsData[level]) return;
   useCurrentLevelState.setState(() => {
