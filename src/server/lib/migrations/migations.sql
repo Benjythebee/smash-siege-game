@@ -54,6 +54,7 @@ SELECT apply_migration('add_level_table', $$
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     author TEXT NOT NULL,
+    wallet TEXT NOT NULL,
     total_ammo NUMERIC NOT NULL,
     content JSONB NOT NULL,
     UNIQUE (name)
@@ -71,11 +72,3 @@ SELECT apply_migration('add_image_url_column', $$
 
 $$);
 
-
-
-SELECT apply_migration('add_wallet_column', $$
-
-  ALTER TABLE levels
-  ADD COLUMN wallet TEXT NOT NULL
-
-$$);
