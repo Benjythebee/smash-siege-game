@@ -5,8 +5,8 @@ import './index.css';
 import { Menu } from './components/ui/Menu.js';
 import { useGameStore } from './store.js';
 import { UserInputIndicator } from './components/ui/components/InputHelper/MobileRotateIndicator.js';
-import { LevelBuilder } from './components/ui/LevelBuilder.js';
-import { EditorMenu } from './components/ui/levelBuilder/Editor.js';
+import { LevelBuilder } from './components/ui/levelBuilder/LevelBuilder.js';
+import { EditorMenu } from './components/ui/levelBuilder/editor/Editor.js';
 import { AmmoLibrary } from './components/ui/ammoLibrary/library.js';
 import { SoundProvider } from './libs/sounds/soundContext.js';
 import { AmbientAudioProvider } from './libs/music/AudioContext.js';
@@ -14,6 +14,7 @@ import { SoundtrackInfo } from './libs/music/index.js';
 import { Footer } from './components/ui/Footer/footer.js';
 import { LevelProgressDetails } from './components/ui/levelProgress/levelProgress.js';
 import { CustomLevelManagerProvider } from './libs/customLevels/customLevel.context.js';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 //credits:
 // Fireside Tales and The_Bards_Tale by Darren Curtis | https://www.darrencurtismusic.com/
@@ -67,20 +68,32 @@ function Hydration() {
 }
 
 function Game() {
+  const [queryClient] = React.useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false
+          }
+        }
+      })
+  );
   return (
     <React.StrictMode>
       <Hydration />
       <AmbientAudioProvider soundtracks={soundtracks}>
-        <SoundProvider>
-          <CustomLevelManagerProvider>
-            <AmmoLibrary />
-            <Menu />
-            <App />
-            <LevelBuilder />
-            <EditorMenu />
-            <Footer />
-          </CustomLevelManagerProvider>
-        </SoundProvider>
+        <QueryClientProvider client={queryClient}>
+          <SoundProvider>
+            <CustomLevelManagerProvider>
+              <AmmoLibrary />
+              <Menu />
+              <App />
+              <LevelBuilder />
+              <EditorMenu />
+              <Footer />
+            </CustomLevelManagerProvider>
+          </SoundProvider>
+        </QueryClientProvider>
       </AmbientAudioProvider>
       <LevelProgressDetails />
       <UserInputIndicator />

@@ -1,73 +1,12 @@
-import { create } from 'zustand';
-import { CustomLevelsAPI } from '../../../../libs/customLevels/editorApi.js';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { LoadingIcon } from '../../icons/loader.js';
 import { LevelType } from '../../../../../common/types.js';
-import { convertLevelTypeToLevelData } from '../../../../../common/convert.js';
 import { useCustomLevelStore } from '../../../../libs/customLevels/customLevel.context.js';
 import { motion } from 'framer-motion';
-
-const levelsStore = create<{
-  levels: LevelType[];
-  page: number;
-  error: string;
-  loading: boolean;
-  actions: {
-    setLevels: (levels: LevelType[]) => void;
-    setPage: (page: number) => void;
-    setError: (error: string) => void;
-    setLoading: (loading: boolean) => void;
-  };
-}>((set, get) => ({
-  levels: [],
-  page: 0,
-  loading: false,
-  error: '',
-  actions: {
-    setLevels: (levels: LevelType[]) => set({ levels }),
-    setPage: (page: number) => set({ page }),
-    setLoading: (loading: boolean) => set({ loading }),
-    setError: (error: string) => set({ error })
-  }
-}));
-
-const useLevelFetchActions = () => {
-  const { setLevels, setPage, setLoading, setError } = levelsStore((state) => state.actions);
-  return { setLevels, setPage, setLoading, setError };
-};
-
-const useCustomLevels = () => {
-  const { levels, page, loading, error } = levelsStore((state) => state);
-  const { setLevels, setLoading, setError } = useLevelFetchActions();
-
-  const fetchLevels = async (page: number) => {
-    setLoading(true);
-    const response = await new CustomLevelsAPI().getCustomLevels(page);
-    if ('error' in response) {
-      console.error(response.error);
-      setError(response.error);
-      setLoading(false);
-      return;
-    }
-    setLevels(response.levels);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (!levels.length) {
-      fetchLevels(0);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchLevels(page);
-  }, [page]);
-  return { levels, page, loading, error, refetch: () => fetchLevels(page) };
-};
+import { useFetchCustomLevels } from '../../../../requests/get-levels.js';
 
 export const CustomLevels = (props: {}) => {
-  const { levels, page, loading } = useCustomLevels();
-  const { setPage } = useLevelFetchActions();
+  const { data, page, isLoading: loading, setPage } = useFetchCustomLevels();
 
   const nextPage = () => {
     setPage(page + 1);
@@ -77,6 +16,7 @@ export const CustomLevels = (props: {}) => {
   };
   const hasPrevPage = page > 0;
 
+  const levels = data?.levels || [];
   return (
     <div className="w-full h-full">
       <div className="pt-6 grid grid-cols-3 max-sm:grid-cols-2 gap-2 max-sm:gap-2">

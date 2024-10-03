@@ -1,29 +1,30 @@
 import { PivotControls } from '@react-three/drei';
 import { MenuStatus, useGameStore } from '../../../../store.js';
-import { EditorDataItem, onItemEditObservable, useEditorStore } from '../../../ui/levelBuilder/Editor.store.js';
+import { EditorGlobalEntity, onItemEditObservable, useEditorStore } from '../../../ui/levelBuilder/editor/Editor.store.js';
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three';
-import { LevelFeatureProp } from '../../../../libs/levels/types.js';
+import { EnvironmentFeatureProp, LevelPlatformProp } from '../../../../../common/types.js';
 import { useRef, useState } from 'react';
 
-export const Gizmos = ({ children, id }: React.PropsWithChildren<{ id: string }>) => {
+export const EnvironmentGizmos = ({ children, id }: React.PropsWithChildren<{ id: string }>) => {
   const menuState = useGameStore((state) => state.menuState);
-  const selectedItem = useEditorStore((s) => s.selectedItem);
-  const selectedItemFocused = useEditorStore((s) => s.focused);
+  const selectedItem = useEditorStore((s) => s.selectedPlatformOrEnvironment);
+  const selectedFeatureItem = useEditorStore((s) => s.selectedItem);
   const [gizmoSelected, setGizmoSelected] = useState<'Rotator' | 'Arrow' | 'Sphere' | 'Slider' | null>(null);
 
   const matrix = useRef(new Matrix4());
 
-  const enabled = menuState == MenuStatus.LEVEL_BUILDER && !!selectedItem && selectedItem.data.uuid == id;
+  // Don't show gizmos if not in level builder mode or if no item is selected or if we have a feature selected (not a platform)
+  const enabled = menuState == MenuStatus.LEVEL_BUILDER && !selectedFeatureItem && !!selectedItem && selectedItem.data.uuid == id;
 
   const startPosition = !selectedItem ? [0, 0, 0] : new Vector3().fromArray(selectedItem.data.position).toArray();
 
-  const updateComponent = (_newData: LevelFeatureProp) => {
+  const update = (_newData: LevelPlatformProp | EnvironmentFeatureProp) => {
     if (!selectedItem) return;
     useEditorStore.setState((state) => {
       const newData = { ...selectedItem.data, ..._newData };
-      const newItem = { ...selectedItem, ...{ data: newData } } as EditorDataItem;
+      const newItem = { ...selectedItem, ...{ data: newData } } as EditorGlobalEntity;
       onItemEditObservable.notifyObservers(newItem);
-      return { selectedItem: { ...state.selectedItem, ...newItem } };
+      return { selectedPlatformOrEnvironment: { ...state.selectedItem, ...newItem } };
     });
   };
 
@@ -31,8 +32,8 @@ export const Gizmos = ({ children, id }: React.PropsWithChildren<{ id: string }>
     <PivotControls
       enabled={enabled}
       depthTest={false}
-      scale={selectedItemFocused ? 1 : 3}
       autoTransform={true}
+      scale={2}
       matrix={matrix.current}
       onDragStart={(p) => {
         setGizmoSelected(p.component);
@@ -70,7 +71,7 @@ export const Gizmos = ({ children, id }: React.PropsWithChildren<{ id: string }>
         }
 
         const data = { rotation: prev.rotation.toArray().splice(0, 3), position: prev.position.toArray(), scale: prev.scale.toArray() };
-        updateComponent(data as any);
+        update(data as any);
       }}
       offset={startPosition as [number, number, number]}
     >

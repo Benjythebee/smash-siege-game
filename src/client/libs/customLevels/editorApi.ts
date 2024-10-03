@@ -4,10 +4,24 @@ import { ExpectedLevelDataFromClient, LevelType } from '../../../common/types.js
 export class CustomLevelsAPI {
   constructor() {}
 
-  getCustomLevels = async (page: number) => {
+  getCustomLevelsByAuthor = async (author: string, search?: string) => {
+    return await this._fetch<{ success: true; levels: LevelType[] }>(`/api/levels/by/${author}`, {
+      method: 'POST',
+      body: JSON.stringify({ search })
+    });
+  };
+
+  getCustomLevels = async (page: number, search?: string) => {
     return await this._fetch<{ success: true; levels: LevelType[]; page: number }>('/api/levels', {
       method: 'POST',
-      body: JSON.stringify({ page })
+      body: JSON.stringify({ page, search })
+    });
+  };
+
+  updateLevel = async (level: ExpectedLevelDataFromClient & { importedId?: number }) => {
+    return await this._fetch<{ success: true; levels: LevelType }>('/api/levels/update', {
+      method: 'POST',
+      body: JSON.stringify(level)
     });
   };
 

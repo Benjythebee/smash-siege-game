@@ -27,12 +27,12 @@ export const verifyUserLoggedInMiddleware = async (req: express.Request, res: ex
   MonaAPI.Mona.bearer = strippedBearerToken;
 
   const user = await mona.getUser();
-  console.log(user);
   if ('error' in user) {
     res.status(200).json({ success: false, error: 'Invalid token' });
     return;
   }
 
+  req._user = user;
   mona.logout();
 
   next();

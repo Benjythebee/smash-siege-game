@@ -70,3 +70,12 @@ SELECT apply_migration('add_image_url_column', $$
   ADD COLUMN image_url TEXT NULL
 
 $$);
+
+
+
+SELECT apply_migration('add_wallet_column', $$
+
+  ALTER TABLE levels
+  ADD COLUMN wallet TEXT NOT NULL
+
+$$);

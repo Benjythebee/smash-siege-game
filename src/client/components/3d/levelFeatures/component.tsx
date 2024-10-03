@@ -10,8 +10,8 @@ import { Trampoline } from './glbComponents/Trampoline.js';
 import { GroupProps, ThreeEvent } from '@react-three/fiber';
 import { useSoundContext } from '../../../libs/sounds/soundContext.js';
 import { Boulder } from './glbComponents/Boulder.js';
-import { Gizmos } from './gizmos/gizmos.js';
-import { useEditorStore } from '../../ui/levelBuilder/Editor.store.js';
+import { Gizmos } from './gizmos/component.gizmos.js';
+import { useEditorStore } from '../../ui/levelBuilder/editor/Editor.store.js';
 import { FeatureType, IndestructibleType, LevelFeatureProp } from '../../../../common/types.js';
 
 const healthToBrokenStatus = (type: FeatureType, value: number): 'healthy' | 'good' | 'meh' | 'broken' | 'destroyed' => {
@@ -180,7 +180,7 @@ export const LevelComponent = React.forwardRef((props: Partial<Breakable<LevelFe
     type == 'trampoline' ? (
       <Trampoline onClick={onPointerClick} name={type + uuid} uuid={uuid} ref={ref} scale={[width, height, depth]} />
     ) : type == 'boulder' ? (
-      <Boulder name={type + uuid} uuid={uuid} ref={ref} scale={[width, height, depth]} />
+      <Boulder onClick={onPointerClick} name={type + uuid} uuid={uuid} ref={ref} scale={[width, height, depth]} />
     ) : (
       <CustomComponent
         onClick={onPointerClick}

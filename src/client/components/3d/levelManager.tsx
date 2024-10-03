@@ -2,7 +2,7 @@ import { MenuStatus, useCurrentLevelState, useGameStore } from '../../store.js';
 import { Platform } from './levelFeatures/platforms.js';
 import { LevelComponent } from './levelFeatures/component.js';
 import { EnvironmentFeature } from './levelFeatures/environment/index.js';
-import { useLevelBuilderStore } from '../ui/LevelBuilder.js';
+import { useLevelBuilderStore } from '../ui/levelBuilder/LevelBuilder.js';
 import { Fragment, useEffect, useState } from 'react';
 import { LevelFeatureProp } from '../../../common/types.js';
 import { Breakable } from '../../libs/levels/types.js';
@@ -33,7 +33,7 @@ export const LevelManager = () => {
     const components = state.components.filter((component) => component.platformIndex === index) as Breakable<LevelFeatureProp>[];
 
     return (
-      <Platform key={platform.uuid || index} scale={platform.scale} position={platform.position}>
+      <Platform key={platform.uuid || index} {...platform}>
         {components.map((component) => {
           return <LevelComponent key={component.uuid} {...component} />;
         })}

@@ -6,11 +6,6 @@ export const validateLevelData = (levelData: ExpectedLevelDataFromClient) => {
     return 'Level name is too short';
   }
 
-  // Check if the level author is valid
-  if (typeof levelData.author == 'undefined' || levelData.author.length < 1) {
-    return 'Level author is too short';
-  }
-
   if (levelData.total_ammo < 0) {
     return 'Total ammo cannot be negative';
   }

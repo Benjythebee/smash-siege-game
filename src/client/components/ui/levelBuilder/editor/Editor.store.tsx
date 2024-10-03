@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { EnvironmentFeatureProp, LevelFeatureProp, LevelPlatformProp } from '../../../libs/levels/types.js';
-import { Observable } from '../../../libs/observable.js';
+import { EnvironmentFeatureProp, LevelFeatureProp, LevelPlatformProp } from '../../../../../common/types.js';
+import { Observable } from '../../../../libs/observable.js';
 import { useLevelBuilderStore } from '../LevelBuilder.js';
 
 export type EditorGlobalEntity = { type: 'environment'; data: EnvironmentFeatureProp } | { type: 'platforms'; data: LevelPlatformProp };

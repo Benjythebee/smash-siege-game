@@ -9,7 +9,7 @@ import { featureHealth } from './components/3d/levelFeatures/constants.js';
 import { v4 as uuidv4 } from 'uuid';
 import { Vector3 } from 'three';
 import { onReloadLevel } from './observables.js';
-import { useLevelBuilderStore } from './components/ui/LevelBuilder.js';
+import { useLevelBuilderStore } from './components/ui/levelBuilder/LevelBuilder.js';
 import { playSoundProgrammatically } from './libs/sounds/soundContext.js';
 import { slingShotCenterPositionVector } from './components/3d/Slingshot.js';
 import React from 'react';
