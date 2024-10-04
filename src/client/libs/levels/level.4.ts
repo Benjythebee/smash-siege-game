@@ -20,7 +20,8 @@ const level: LevelData = {
     { scale: [1, 1, 1], position: [-3, -1, -17], rotation: [0, 0, 0], width: 1, height: 1, depth: 1, type: 'rock_2' },
     { scale: [1, 1, 1], position: [8, -1, -7], rotation: [0, 0, 0], width: 1, height: 1, depth: 1, type: 'plant' },
     { scale: [1, 1, 1], position: [3, -1, -7], rotation: [0, 0, 0], width: 1, height: 1, depth: 1, type: 'large_rock' }
-  ]
+  ],
+  image_url: '/images/thumbnails/level-4.png'
 };
 
 export default level;
