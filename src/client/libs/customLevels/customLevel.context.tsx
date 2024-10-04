@@ -13,7 +13,7 @@ type CustomLevelContextType = {
   setLoadedCustomLevel: (level: LevelType | null, shouldReset?: boolean) => void;
   uploadError: string | null;
   uploadSuccess: boolean;
-  uploadLevelToLibrary: (cleanedLevel: LevelData) => Promise<void>;
+  uploadLevelToLibrary: (cleanedLevel: LevelData & { importedId?: number }) => Promise<void>;
 };
 
 export const CustomLevelStore = createStore<CustomLevelContextType>()((set, get) => ({
@@ -37,7 +37,7 @@ export const CustomLevelStore = createStore<CustomLevelContextType>()((set, get)
       }
     }
   },
-  uploadLevelToLibrary: async (cleanedLevel: LevelData) => {
+  uploadLevelToLibrary: async (cleanedLevel: LevelData & { importedId?: number }) => {
     const user = useUserStore.getState();
     set({ uploadError: null, uploadSuccess: false });
 
@@ -47,26 +47,35 @@ export const CustomLevelStore = createStore<CustomLevelContextType>()((set, get)
     }
     // Upload to Library
     // Convert LevelData to LevelType
-    const level: ExpectedLevelDataFromClient = {
+    const level: ExpectedLevelDataFromClient & { importedId?: number } = {
       name: cleanedLevel.name,
       description: 'Custom level',
-      author: user.user?.username || 'Anonymous',
       image_url: cleanedLevel.image_url || '',
       total_ammo: cleanedLevel.totalAmmo,
       content: {
         platforms: cleanedLevel.platforms,
         environment: cleanedLevel.environment,
         components: cleanedLevel.components
-      }
+      },
+      importedId: cleanedLevel.importedId
     };
 
     const api = new CustomLevelsAPI();
 
-    const response = await api.addLevel(level);
-    if ('error' in response) {
-      set({ uploadError: response.error, uploadSuccess: false });
+    if (level.importedId) {
+      const response = await api.updateLevel(level);
+      if ('error' in response) {
+        set({ uploadError: response.error, uploadSuccess: false });
+      } else {
+        set({ uploadError: '', uploadSuccess: true });
+      }
     } else {
-      set({ uploadError: '', uploadSuccess: true });
+      const response = await api.addLevel(level);
+      if ('error' in response) {
+        set({ uploadError: response.error, uploadSuccess: false });
+      } else {
+        set({ uploadError: '', uploadSuccess: true });
+      }
     }
   }
 }));

@@ -16,7 +16,7 @@ export const defaultPlatformProps = (props: Partial<LevelPlatformProp>): LevelPl
     width: 1,
     height: 1,
     depth: 1,
-    color: '#000',
+    color: '#fff',
     uuid: props.uuid || uuidv4(),
     ...props
   };
@@ -30,7 +30,7 @@ export const defaultFeatureProps = (props: Partial<Breakable<LevelFeatureProp>>)
     width: 1,
     height: 1,
     depth: 1,
-    color: '#000',
+    color: '#fff',
     type: 'wood',
     health: featureHealth['wood'],
     uuid: props.uuid || uuidv4(),

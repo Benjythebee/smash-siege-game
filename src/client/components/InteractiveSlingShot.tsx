@@ -10,7 +10,7 @@ import { currentAmmoPosition, isAmmoReleased, markAmmoAsReleased, MenuStatus, mo
 import { useArrowKeys } from './hooks/use-controls.js';
 import { Gear } from './3d/Gear.js';
 import { onReloadLevel, onSlingshotLoadingObservable, onSlingshotReleaseObservable } from '../observables.js';
-import { useEditorStore } from './ui/levelBuilder/Editor.store.js';
+import { useEditorStore } from './ui/levelBuilder/editor/Editor.store.js';
 import { useSoundContext } from '../libs/sounds/soundContext.js';
 import { SlingShotPlatform } from './3d/SlingShotPlatform.js';
 import { isMobile } from '../libs/music/detectors/index.js';

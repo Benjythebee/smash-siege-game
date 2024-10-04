@@ -19,6 +19,7 @@ const level: LevelData = {
   ],
   platforms: [
     {
+      color: '#fff',
       position: [0, 0, -15] as [x: number, y: number, z: number],
       scale: [10, 1, 10]
     }

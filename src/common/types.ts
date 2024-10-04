@@ -68,10 +68,11 @@ export type LevelType = {
   description?: string;
   image_url?: string;
   created_at: Date;
+  wallet: string;
   updated_at: Date;
   author: string;
   total_ammo: number;
   content: LevelDataDB;
 };
 
-export type ExpectedLevelDataFromClient = Omit<LevelType, 'created_at' | 'updated_at' | 'id'>;
+export type ExpectedLevelDataFromClient = Omit<LevelType, 'author' | 'wallet' | 'created_at' | 'updated_at' | 'id'>;

@@ -42,7 +42,7 @@ export const AuthInEditor = () => {
 
   if (user) {
     return (
-      <div className="flex justify-between items-center gap-1 p-2 ">
+      <div className="flex justify-between items-center gap-1 p-2 text-white">
         <img src="/images/mona-red.webp" alt="mona" className="w-8 h-8" />
         <div className="flex grow flex-col gap-1">
           <span className="text-base font-bold  leading-3"> Logged in as {user.username} </span>
@@ -64,29 +64,39 @@ export const AuthInEditor = () => {
 
   return (
     <>
-      <form className="text-black flex max-sm:flex-col gap-1 p-2" onSubmit={onSubmitForm}>
+      <form className="text-white flex flex-col gap-1 p-2" onSubmit={onSubmitForm}>
         <div className="flex gap-2 items-center">
           <img src="/images/mona-red.webp" alt="mona" className="w-8 h-8" />
           <span className="text-xl font-bold  leading-6 "> Login to MONA</span>
         </div>
 
-        <div className="flex max-sm:flex-col max-sm:item-center gap-2">
+        <div className="flex flex-col max-sm:item-center gap-2">
           {!showOTP ? (
             <label htmlFor="email">
               Email:{' '}
               {loading ? (
                 <div className="w-full">Loading...</div>
               ) : (
-                <input key="email_" name="email" className="w-full bg-white pointer-events-auto" type="email" placeholder="Email@email.com" />
+                <input key="email_" name="email" className="w-full bg-white text-black pointer-events-auto" type="email" placeholder="Email@email.com" />
               )}
             </label>
           ) : (
             <label htmlFor="otp">
               OTP sent to your email
-              <input key="otp_" name="otp" type="text" autoFocus className="w-full bg-white pointer-events-auto" placeholder="OTP" maxLength={6} />
+              <input key="otp_" name="otp" type="text" autoFocus className="w-full text-black bg-white pointer-events-auto" placeholder="OTP" maxLength={6} />
             </label>
           )}
-          <button className="px-2 bg-slate-200 rounded-md pointer-events-auto">Login</button>
+          <button className="px-2 bg-green-700 hover:bg-green-700/80 text-black rounded-md pointer-events-auto">Login</button>
+          <button
+            className="px-2 bg-blueish-green hover:bg-blueish-green/80 text-black rounded-md pointer-events-auto"
+            onClick={(e) => {
+              e.preventDefault();
+              const t = window.open('https://monaverse.com/signup', '_blank');
+              t?.focus();
+            }}
+          >
+            Register
+          </button>
         </div>
       </form>
     </>

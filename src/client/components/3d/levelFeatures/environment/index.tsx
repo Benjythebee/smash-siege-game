@@ -7,9 +7,10 @@ import { EnvironmentLargeRock } from './RockLarge.js';
 import { EnvironmentPlant } from './Plant.js';
 import { EnvironmentKelp } from './Kelp.js';
 import { EnvironmentFeatureProp } from '../../../../../common/types.js';
+import { EnvironmentGizmos } from '../gizmos/environment.gizmos.js';
 
 export const EnvironmentFeature = React.forwardRef((props: Partial<EnvironmentFeatureProp>, ref: any) => {
-  const { width, depth, height, type, ...rest } = defaultEnvironmentProps(props);
+  const { width, depth, height, type, uuid, ...rest } = defaultEnvironmentProps(props);
 
   const Feature = () => {
     switch (type) {
@@ -33,12 +34,18 @@ export const EnvironmentFeature = React.forwardRef((props: Partial<EnvironmentFe
     case 'rock_2':
     case 'large_rock':
       return (
-        <RigidBody ref={ref} colliders={'trimesh'} type="fixed" {...rest}>
-          <Feature />
-        </RigidBody>
+        <EnvironmentGizmos key={uuid + 'gizmo'} id={uuid}>
+          <RigidBody ref={ref} colliders={'trimesh'} type="fixed" {...rest}>
+            <Feature />
+          </RigidBody>
+        </EnvironmentGizmos>
       );
 
     default:
-      return <Feature />;
+      return (
+        <EnvironmentGizmos key={uuid + 'gizmo'} id={uuid}>
+          <Feature />
+        </EnvironmentGizmos>
+      );
   }
 });
