@@ -43,8 +43,9 @@ Some todos I can think of right now, more will probably be added in the future
 - [x] Ability to upload level and play it
 - [ ] Should be able to test the level before uploading it.
 - [ ] Improve Design and CSS
-- [ ] Allow loading previously uploaded levels to edit them
-- [ ] add gizmos to platforms and environment objects
+- [x] Allow loading previously uploaded levels to edit them
+- [x] add gizmos to platforms
+- [ ] add gizmos to environment objects
 - [ ] (MAYBE) Add ability to have custom GLBs as element in the level ?
 
 **Server:**
