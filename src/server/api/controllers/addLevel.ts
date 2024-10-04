@@ -35,7 +35,7 @@ export const addLevel = async (req: express.Request, res: express.Response) => {
         INSERT INTO levels (name, description, author, wallet, total_ammo, content, image_url)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *`,
-      [params.name, params.description, username, wallets[0], params.total_ammo, JSON.stringify(params.content), params.image_url || null]
+      [params.name, params.description, username, wallets[0] || null, params.total_ammo, JSON.stringify(params.content), params.image_url || null]
     );
 
     const levels = queryResponse?.rows || [];

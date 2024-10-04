@@ -54,7 +54,7 @@ SELECT apply_migration('add_level_table', $$
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     author TEXT NOT NULL,
-    wallet TEXT NOT NULL,
+    wallet TEXT NULL,
     total_ammo NUMERIC NOT NULL,
     content JSONB NOT NULL,
     UNIQUE (name)

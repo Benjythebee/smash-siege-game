@@ -6,17 +6,23 @@ import { ScreenshotManager } from '../../../../../libs/screenshotManager/screens
 import { useUserStore } from '../../../../userStore';
 import cn from 'clsx';
 import { JSONFileIcon } from '../../../icons/json.icon';
+const physicsDebug = import.meta.env.VITE_PHYSICS_DEBUG == 'true';
 
 export const LevelBuilderExportSection = () => {
   const { platforms, components, importedId } = useLevelBuilderStore((state) => state);
   const [uploading, setUploading] = React.useState(false);
-  const { scene, camera } = useSceneOutsideR3F();
+  const { scene, camera } = useSceneOutsideR3F((s) => ({ scene: s.scene, camera: s.camera }));
   const user = useUserStore((state) => state.user);
   const { uploadLevelToLibrary, uploadError, uploadSuccess } = useCustomLevelStore();
 
   const isUpdate = !!importedId;
 
-  const takeScreenShot = (purpose: 'encoded' | 'download') => {
+  const toggleDebugPhysics = (x: boolean) => {
+    if (!physicsDebug) return;
+    useSceneOutsideR3F.setState({ debug: x });
+  };
+
+  const takeScreenShot = async (purpose: 'encoded' | 'download') => {
     if (!scene) {
       console.warn('No scene found');
       return;
@@ -25,12 +31,18 @@ export const LevelBuilderExportSection = () => {
       console.warn('No camera found');
       return;
     }
+    toggleDebugPhysics(false);
+    // Sleep for 4ms to allow the scene to update
+    await new Promise((resolve) => setTimeout(resolve, 4));
     const c = new ScreenshotManager(scene);
     c.setCamera(camera);
     if (purpose == 'encoded') {
-      return c.getImageData(256, 256);
+      const data = c.getImageData(256, 256);
+      toggleDebugPhysics(true);
+      return data;
     } else {
       c.saveScreenshot('my level', 512, 512);
+      toggleDebugPhysics(true);
       return null;
     }
   };
@@ -68,7 +80,7 @@ export const LevelBuilderExportSection = () => {
       // Take a screenshot
 
       setUploading(true);
-      const imgData = takeScreenShot('encoded');
+      const imgData = await takeScreenShot('encoded');
       if (imgData) {
         object.image_url = imgData;
       }

@@ -32,7 +32,10 @@ export const updateLevel = async (req: express.Request, res: express.Response) =
     return res.json({ success: false, error: 'Level not found' });
   }
 
-  if (level.rows[0].author.toLowerCase() !== username.toLowerCase() || wallets.map((w) => w.toLowerCase()).indexOf(level.rows[0].wallet.toLowerCase()) === -1) {
+  if (
+    level.rows[0].author.toLowerCase() !== username.toLowerCase() ||
+    (!!wallets.length && !!level.rows[0].wallet && wallets.map((w) => w.toLowerCase()).indexOf(level.rows[0].wallet.toLowerCase()) === -1)
+  ) {
     return res.json({ success: false, error: 'You are not the author of this level' });
   }
 
@@ -40,21 +43,21 @@ export const updateLevel = async (req: express.Request, res: express.Response) =
   const validationResponse = await pg.query<LevelType>(
     `
       select * from levels
-      where lower(name) = lower($1)`,
-    [params.name]
+      where lower(name) = lower($1) AND id != $2`,
+    [params.name, id]
   );
 
   if (validationResponse?.rows.length) {
-    return res.json({ success: false, error: 'Level with the same name already exists' });
+    return res.json({ success: false, error: 'Another level with the same name already exists' });
   }
 
   try {
     const queryResponse = await pg.query<LevelType>(
-      `
-        UPDATE levels 
-        set name = $1, description = $2, author = $3, wallet = $4, total_ammo = $5, content = $6, image_url = $7
+      `UPDATE levels 
+        set name = $1, description = $2, total_ammo = $3, content = $4, image_url = $5
+        WHERE id = $6
         RETURNING *`,
-      [params.name, params.description, username, wallets[0], params.total_ammo, JSON.stringify(params.content), params.image_url || null]
+      [params.name, params.description, params.total_ammo, JSON.stringify(params.content), params.image_url || null, id]
     );
 
     const levels = queryResponse?.rows || [];
