@@ -45,7 +45,8 @@ const level: LevelData = {
       position: [1, 2, 0],
       scale: [1, 3, 1]
     }
-  ]
+  ],
+  image_url: '/images/thumbnails/level-0.png'
 };
 
 export default level;

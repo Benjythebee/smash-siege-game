@@ -17,6 +17,7 @@ const level: LevelData = {
     { scale: [1, 1, 1], position: [7, -2, 0], rotation: [0, -1, 0], width: 1, height: 1, depth: 1, type: 'kelp' },
     { scale: [1, 1, 1], position: [-10, -1, -10], rotation: [0, 0, 0], width: 1, height: 1, depth: 1, type: 'rock_2' },
     { scale: [1, 1, 1], position: [8, -1, -13], rotation: [0, 0, 0], width: 1, height: 1, depth: 1, type: 'plant' }
-  ]
+  ],
+  image_url: '/images/thumbnails/level-5.png'
 };
 export default level;

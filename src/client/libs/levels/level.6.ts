@@ -83,6 +83,7 @@ const level: LevelData = {
       depth: 1,
       type: 'large_rock'
     }
-  ]
+  ],
+  image_url: '/images/thumbnails/level-6.png'
 };
 export default level;
