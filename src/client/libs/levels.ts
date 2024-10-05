@@ -17,6 +17,7 @@ export const levelsData = levelsData_.reduce(
   {} as {
     length: number;
     custom: LevelData | null;
+    'editor-test': LevelData | null;
   } & Record<string, LevelData>
 );
 

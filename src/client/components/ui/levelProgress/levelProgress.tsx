@@ -1,6 +1,8 @@
 import { useCustomLevelStoreWithSelector } from '../../../libs/customLevels/customLevel.context.js';
 import { MenuStatus, useGameStore, useSlingShotStore } from '../../../store.js';
 import { AnimatedNumber } from '../components/AnimatedNumber.js';
+import { Button } from '../components/button/button.js';
+import { exitTestLevel } from '../levelBuilder/testLevel.js';
 
 export const LevelProgressDetails = () => {
   const { level, score, menuState } = useGameStore();
@@ -10,12 +12,14 @@ export const LevelProgressDetails = () => {
 
   const isVisible = menuState == MenuStatus.HIDDEN;
 
-  const levelName = loadedCustomLevel ? loadedCustomLevel.name : `Level ${level}`;
+  const isTestLevel = level === 'editor-test';
+
+  const levelName = loadedCustomLevel ? loadedCustomLevel.name : isTestLevel ? `Editor level` : `Level ${level}`;
 
   return (
     <>
       <div className={`LevelProgress absolute z-20 pointer-events-none top-0 right-0 max-sm:w-full h-12  ${!isVisible ? 'hidden' : ''}  `}>
-        <div className="RightSide bg-slate-400/20 pointer-events-none select-none flex items-center h-full justify-between">
+        <div className="RightSide relative bg-slate-400/20 pointer-events-none select-none flex items-center h-full justify-between">
           <div className="relative  border-x-2 border-solid border-black px-2 flex h-full gap-4 items-end pb-[2px] min-w-20">
             <div className="absolute top-1 left-1 text-sm font-bold">Ammo:</div>
             {ammoLoadout.map((_, i) => (
@@ -30,6 +34,10 @@ export const LevelProgressDetails = () => {
               {score ? <AnimatedNumber className="max-md:text-base" value={score} /> : '-'} Pts{' '}
             </div>
           </div>
+
+          {isTestLevel ? (
+            <Button className="absolute pointer-events-auto -bottom-14 right-0" theme="white" size="big" text="Return to Level builder" onClick={exitTestLevel} />
+          ) : null}
         </div>
       </div>
     </>

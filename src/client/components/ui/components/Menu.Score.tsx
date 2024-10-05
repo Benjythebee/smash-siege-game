@@ -5,6 +5,7 @@ import { AnimatedNumber } from './AnimatedNumber.js';
 import { levelsData } from '../../../libs/levels.js';
 import { scoreToGrade } from '../../../libs/score.js';
 import { Button } from './button/button.js';
+import { exitTestLevel } from '../levelBuilder/testLevel.js';
 
 export const LevelScore = () => {
   const score = useGameStore((state) => state.score);
@@ -19,7 +20,8 @@ export const LevelScore = () => {
   const currentLevel = name;
 
   // If it's a custom level, we don't have the next level
-  const isLastLevel = level == 'custom' ? true : level === levelsData.length - 1;
+  const isLastLevel = level == 'custom' || level == 'editor-test' ? true : level === levelsData.length - 1;
+  const isTestLevel = level === 'editor-test';
   const ammoUsed = currentAmmoIndex + 1;
   const retryLevel = () => {
     resetLevel();
@@ -72,7 +74,8 @@ export const LevelScore = () => {
       <div className="grow flex flex-col gap-2">
         {showNext && !isLastLevel && <Button theme="green" size="big" text="Next Level" onClick={nextLevel} />}
         {showRetry && <Button theme="white" size="big" text="Retry" onClick={retryLevel} />}
-        {showNext && isLastLevel && <Button theme="green" size="big" text="Game Over - Menu" onClick={endGame} />}
+        {!isTestLevel && showNext && isLastLevel && <Button theme="green" size="big" text="Game Over - Menu" onClick={endGame} />}
+        {isTestLevel && <Button theme="white" size="big" text="Return to Level builder" onClick={exitTestLevel} />}
         {isLastLevel && <Button theme="white" size="big" text="Credits" onClick={showCredits} />}
       </div>
     </div>

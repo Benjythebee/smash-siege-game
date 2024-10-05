@@ -6,7 +6,7 @@ const ButtonVariants = tv({
   variants: {
     theme: {
       green: 'bg-green-600 hover:bg-green-700 text-white ',
-      white: 'bg-white hover:bg-gray-200 text-black'
+      white: 'bg-white hover:bg-slate-200 text-black'
     },
     size: {
       xsmall: 'text-sm py-1 px-2',

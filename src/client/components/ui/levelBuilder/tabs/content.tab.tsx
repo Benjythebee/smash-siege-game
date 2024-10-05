@@ -1,9 +1,11 @@
 import { EnvironmentFeatureProp, LevelPlatformProp } from '../../../../../common/types';
-import { levelsData } from '../../../../libs/levels';
+import cn from 'clsx';
 import { defaultEnvironmentProps, defaultPlatformProps } from '../../../../libs/levels/types';
 import { useEditorStore } from '../editor/Editor.store';
 import { useLevelBuilderStore } from '../LevelBuilder';
+import { loadTestLevel } from '../testLevel';
 import { addEnvironment, addPlatform, removeEnvironment, removePlatform } from '../utils';
+import { useState } from 'react';
 
 export const LevelBuilderInfoTab = () => {
   const { name, totalAmmo, environment, platforms, components } = useLevelBuilderStore((state) => state);
@@ -115,7 +117,37 @@ export const LevelBuilderInfoTab = () => {
             ))}
           </div>
         </div>
+        {/* Test level button*/}
+        <div className={`flex flex-col gap-2 w-1/5`}>
+          <span className="font-bold">Test Level</span>
+          <TestLevelButton />
+        </div>
       </div>
     </div>
+  );
+};
+
+const TestLevelButton = () => {
+  const [error, setError] = useState<string | null>(null);
+
+  const test = () => {
+    setError(null);
+    try {
+      loadTestLevel();
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+
+  return (
+    <>
+      {error ? <div className="text-red-500">{error}</div> : null}
+      <button
+        className={cn('px-2 rounded-md bg-green-600 text-white  border-solid border-2 cursor-pointer disabled:cursor-auto disabled:bg-gray disabled:text-white/50 ')}
+        onClick={test}
+      >
+        Test Level
+      </button>
+    </>
   );
 };

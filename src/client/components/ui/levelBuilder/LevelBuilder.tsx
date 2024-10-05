@@ -12,7 +12,9 @@ import { LevelBuilderTabs, LevelBuilderTabTypes } from './tabs/tabs.js';
 import { LevelBuilderInfoTab } from './tabs/content.tab.js';
 import { LevelBuilderImportExportTab } from './tabs/exportImport.tab.js';
 
-export const useLevelBuilderStore = create<LevelData & { importedId?: number }>()(() => structuredClone(emptyLevel));
+export type LevelBuilderStoreType = LevelData & { importedId?: number };
+
+export const useLevelBuilderStore = create<LevelBuilderStoreType>()(() => structuredClone(emptyLevel));
 
 export const LevelBuilder = () => {
   const { menuState } = useGameStore();

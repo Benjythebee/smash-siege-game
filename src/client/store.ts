@@ -50,7 +50,7 @@ const generateAmmo = (num: number): ammoLoadoutType[] => {
 };
 
 export const useGameStore = create<{
-  level: number | 'custom';
+  level: number | 'custom' | 'editor-test';
   scoreByLevel: { ammoUsed: number; score: number }[];
   startGame: (level: number) => void;
   endGame: () => void;
@@ -75,7 +75,7 @@ export const useGameStore = create<{
       setScoreByLevel: (score: number, ammoUsed: number) => {
         const level = get().level;
         if (level == 'custom') return; // no score for custom level for now
-
+        if (level == 'editor-test') return; // no score for editor test level
         const arr = get().scoreByLevel;
         arr[level] = { score, ammoUsed };
         set({ scoreByLevel: arr });
@@ -189,7 +189,7 @@ useSlingShotStore.subscribe((state) => {
   if (gameState.menuState !== MenuStatus.HIDDEN) return;
   // Show score if we're out of ammo
   if (state.isOutOfAmmo() && !timeouts.onOutOfAmmoTimeout) {
-    if (gameState.level != 'custom') {
+    if (gameState.level != 'custom' && gameState.level != 'editor-test') {
       // Set score by level on default levels only
       const lastLevelScore = gameState.scoreByLevel[gameState.level]?.score || 0;
       const currentSCore = gameState.score;
@@ -206,7 +206,7 @@ useSlingShotStore.subscribe((state) => {
   }
 });
 // clear all timeouts on level change
-let currentLevel: number | 'custom' = 0;
+let currentLevel: number | 'custom' | 'editor-test' = 0;
 useGameStore.subscribe((state) => {
   if (state.level !== currentLevel) {
     // clear all timeouts
@@ -252,7 +252,7 @@ export const endGame = () => {
 /**
  * Call to clear the scene and reset a level to its initial state
  */
-export const resetLevel = (levelId?: number | 'custom') => {
+export const resetLevel = (levelId?: number | 'custom' | 'editor-test') => {
   let level = levelId ?? useGameStore.getState().level;
   if (!levelsData[level]) {
     level = 0;
@@ -352,7 +352,7 @@ function setComponentsBreakableData(components: LevelFeatureProp[]) {
 /**
  * Load a level by its index (or custom level);
  */
-export const loadLevel = (level: number | 'custom') => {
+export const loadLevel = (level: number | 'custom' | 'editor-test') => {
   if (!levelsData[level]) return;
   useCurrentLevelState.setState(() => {
     const isBuilderLevel = useGameStore.getState().menuState == MenuStatus.LEVEL_BUILDER;

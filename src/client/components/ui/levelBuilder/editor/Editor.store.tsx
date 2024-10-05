@@ -7,6 +7,9 @@ export type EditorGlobalEntity = { type: 'environment'; data: EnvironmentFeature
 
 export type EditorDataItem = { type: 'components'; data: LevelFeatureProp };
 
+/**
+ * Store for the editor component inside the LevelBuilder
+ */
 export const useEditorStore = create<{
   focused: LevelFeatureProp | null;
   isDraggingGizmo: boolean;

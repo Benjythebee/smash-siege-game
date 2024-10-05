@@ -6,6 +6,7 @@ import { ScreenshotManager } from '../../../../../libs/screenshotManager/screens
 import { useUserStore } from '../../../../userStore';
 import cn from 'clsx';
 import { JSONFileIcon } from '../../../icons/json.icon';
+import { cleanLevel } from '../../editor/utils/cleanExportLevel';
 const physicsDebug = import.meta.env.VITE_PHYSICS_DEBUG == 'true';
 
 export const LevelBuilderExportSection = () => {
@@ -55,26 +56,9 @@ export const LevelBuilderExportSection = () => {
         return;
       }
     }
-
-    // cleanup object
-    // remove uuid
-    object.platforms = object.platforms.map((plat) => {
-      //@ts-ignore
-      const { uuid, health, ...rest } = plat;
-      return rest;
-    });
-    object.environment = object.environment!.map((env) => {
-      //@ts-ignore
-      const { uuid, health, ...rest } = env;
-      return rest;
-    });
-    object.components = object.components.map((comp) => {
-      //@ts-ignore
-      const { uuid, health, ...rest } = comp;
-      return rest;
-    });
+    const clean = cleanLevel(object);
     if (option == 'clipboard') {
-      navigator.clipboard.writeText(JSON.stringify(object));
+      navigator.clipboard.writeText(JSON.stringify(clean));
       return;
     } else {
       // Take a screenshot
@@ -82,9 +66,9 @@ export const LevelBuilderExportSection = () => {
       setUploading(true);
       const imgData = await takeScreenShot('encoded');
       if (imgData) {
-        object.image_url = imgData;
+        clean.image_url = imgData;
       }
-      await uploadLevelToLibrary(object);
+      await uploadLevelToLibrary(clean);
       setUploading(false);
     }
   };
